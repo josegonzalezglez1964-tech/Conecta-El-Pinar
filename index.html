@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1e6b5c" />
+    <meta name="description" content="PinarConnect: Comunidad y Solidaridad Herreña" />
+    <title>PinarConnect · Comunidad y Solidaridad Herreña</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-card">
+          <div class="brand-mark">🌿</div>
+          <div>
+            <p class="eyebrow">El Pinar de El Hierro</p>
+            <h1>PinarConnect</h1>
+            <p class="muted">Comunidad y Solidaridad Herreña</p>
+          </div>
+        </div>
+
+        <nav class="nav-tabs" aria-label="Navegación principal">
+          <button class="nav-tab active" data-view="inicio">Inicio</button>
+          <button class="nav-tab" data-view="favores">Mercadillo de favores</button>
+          <button class="nav-tab" data-view="mentidero">El Mentidero Digital</button>
+          <button class="nav-tab" data-view="alertas">Alertas vecinales</button>
+          <button class="nav-tab" data-view="perfil">Mi perfil</button>
+        </nav>
+
+        <section class="status-card glass">
+          <h2>Resumen del día</h2>
+          <div class="status-grid">
+            <div>
+              <span class="status-number" id="favoresCount">0</span>
+              <span class="status-label">favores activos</span>
+            </div>
+            <div>
+              <span class="status-number" id="mentideroCount">0</span>
+              <span class="status-label">mensajes con alma</span>
+            </div>
+            <div>
+              <span class="status-number" id="alertasCount">0</span>
+              <span class="status-label">alertas visibles</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="quote-card glass">
+          <p class="eyebrow">Lema del día</p>
+          <blockquote id="dailyQuote">
+            Hoy la isla se cuida hablando, ayudando y estando presente.
+          </blockquote>
+        </section>
+      </aside>
+
+      <main class="content">
+        <header class="hero glass">
+          <div>
+            <p class="eyebrow">Red social hiperlocal</p>
+            <h2>Una app pensada para apoyarse, compartir y convivir</h2>
+            <p class="hero-copy">
+              Diseñada para la vida diaria en El Pinar: desde favores cotidianos y excedentes de huerta,
+              hasta mensajes positivos, historias locales y alertas rápidas sobre carreteras, clima o senderos.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <button class="primary-btn" data-open-modal="favor">+ Publicar favor</button>
+            <button class="secondary-btn" data-open-modal="mentidero">+ Compartir mensaje</button>
+            <button class="secondary-btn" data-open-modal="alerta">+ Crear alerta</button>
+          </div>
+        </header>
+
+        <section class="view active" id="view-inicio">
+          <div class="cards-3">
+            <article class="feature-card glass accent-green">
+              <h3>Mercadillo de favores</h3>
+              <p>Ofrece ayuda, comparte productos de tu huerta o pide un pequeño apoyo vecinal.</p>
+              <button class="inline-btn" data-switch-view="favores">Entrar</button>
+            </article>
+            <article class="feature-card glass accent-amber">
+              <h3>El Mentidero Digital</h3>
+              <p>Mensajes positivos, poesía, recuerdos del pueblo y reflexiones mañaneras.</p>
+              <button class="inline-btn" data-switch-view="mentidero">Entrar</button>
+            </article>
+            <article class="feature-card glass accent-coral">
+              <h3>Alertas vecinales</h3>
+              <p>Avisos útiles sobre senderos, incidencias, tráfico local o cambios meteorológicos.</p>
+              <button class="inline-btn" data-switch-view="alertas">Entrar</button>
+            </article>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="panel glass">
+              <div class="panel-head">
+                <h3>Favores recientes</h3>
+                <button class="text-btn" data-switch-view="favores">Ver todo</button>
+              </div>
+              <div id="inicioFavores" class="stack-list"></div>
+            </section>
+            <section class="panel glass">
+              <div class="panel-head">
+                <h3>Voces del Mentidero</h3>
+                <button class="text-btn" data-switch-view="mentidero">Leer</button>
+              </div>
+              <div id="inicioMentidero" class="stack-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-favores">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Ayuda mutua cotidiana</p>
+              <h2>Mercadillo de favores</h2>
+            </div>
+            <button class="primary-btn" data-open-modal="favor">+ Nuevo favor</button>
+          </div>
+
+          <div class="toolbar glass">
+            <div class="filter-group">
+              <label for="favorTipo">Tipo</label>
+              <select id="favorTipo">
+                <option value="todos">Todos</option>
+                <option value="ofrezco">Ofrezco ayuda</option>
+                <option value="necesito">Necesito ayuda</option>
+              </select>
+            </div>
+            <div class="filter-group grow">
+              <label for="favorBusqueda">Buscar</label>
+              <input id="favorBusqueda" type="search" placeholder="paquete, huerta, coche, recado..." />
+            </div>
+          </div>
+
+          <div id="favoresList" class="feed-grid"></div>
+        </section>
+
+        <section class="view" id="view-mentidero">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Calidez comunitaria</p>
+              <h2>El Mentidero Digital</h2>
+            </div>
+            <button class="primary-btn" data-open-modal="mentidero">+ Escribir</button>
+          </div>
+
+          <div class="toolbar glass">
+            <div class="filter-group">
+              <label for="mentideroFiltro">Ver</label>
+              <select id="mentideroFiltro">
+                <option value="todos">Todos</option>
+                <option value="mensaje">Mensajes</option>
+                <option value="poesia">Poesía</option>
+                <option value="historia">Historias</option>
+                <option value="reflexion">Reflexiones</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="mentideroList" class="timeline"></div>
+        </section>
+
+        <section class="view" id="view-alertas">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Información útil al instante</p>
+              <h2>Alertas vecinales</h2>
+            </div>
+            <button class="primary-btn" data-open-modal="alerta">+ Nueva alerta</button>
+          </div>
+
+          <div class="toolbar glass">
+            <div class="filter-group">
+              <label for="alertaZona">Zona</label>
+              <select id="alertaZona">
+                <option value="todas">Todas</option>
+                <option value="El Pinar">El Pinar</option>
+                <option value="Valverde">Valverde</option>
+                <option value="La Restinga">La Restinga</option>
+                <option value="La Llanía">La Llanía</option>
+                <option value="Jinama">Camino de Jinama</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="alertaNivel">Prioridad</label>
+              <select id="alertaNivel">
+                <option value="todas">Todas</option>
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="informativa">Informativa</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="alertasList" class="alerts-grid"></div>
+        </section>
+
+        <section class="view" id="view-perfil">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Identidad vecinal</p>
+              <h2>Mi perfil</h2>
+            </div>
+          </div>
+
+          <div class="profile-grid">
+            <section class="panel glass">
+              <h3>Tu vecindad digital</h3>
+              <form id="profileForm" class="form-grid compact">
+                <label>
+                  Nombre visible
+                  <input type="text" id="profileName" placeholder="Tu nombre o apodo" />
+                </label>
+                <label>
+                  Barrio o zona
+                  <input type="text" id="profileZone" placeholder="Taibique, Las Casas, La Restinga..." />
+                </label>
+                <label>
+                  Lo que sueles ofrecer
+                  <input type="text" id="profileSkills" placeholder="recados, huerta, coche, compañía" />
+                </label>
+                <label>
+                  Tu frase amable
+                  <textarea id="profileBio" rows="4" placeholder="Un mensaje que te represente"></textarea>
+                </label>
+                <button type="submit" class="primary-btn">Guardar perfil</button>
+              </form>
+            </section>
+            <section class="panel glass preview-panel">
+              <h3>Vista previa</h3>
+              <div class="profile-preview">
+                <div class="avatar" id="profileAvatar">PC</div>
+                <h4 id="previewName">Vecino/a de El Pinar</h4>
+                <p id="previewZone">Comunidad cercana y activa</p>
+                <p id="previewSkills">Aún no has indicado qué te gusta compartir.</p>
+                <blockquote id="previewBio">“Aquí siempre cabe un gesto amable más.”</blockquote>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="favorModal" class="modal">
+      <form method="dialog" class="modal-card" id="favorForm">
+        <div class="modal-head">
+          <h3>Publicar favor</h3>
+          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="form-grid">
+          <label>
+            Tipo
+            <select id="nuevoFavorTipo" required>
+              <option value="necesito">Necesito ayuda</option>
+              <option value="ofrezco">Ofrezco ayuda</option>
+            </select>
+          </label>
+          <label>
+            Título
+            <input id="nuevoFavorTitulo" type="text" required placeholder="Ej. Recoger un paquete en Valverde" />
+          </label>
+          <label>
+            Zona
+            <input id="nuevoFavorZona" type="text" required placeholder="El Pinar, La Restinga, Valverde..." />
+          </label>
+          <label>
+            Etiquetas
+            <input id="nuevoFavorTags" type="text" placeholder="huerta, coche, recado" />
+          </label>
+          <label class="full-width">
+            Detalles
+            <textarea id="nuevoFavorDetalle" rows="4" required placeholder="Explica qué necesitas u ofreces"></textarea>
+          </label>
+        </div>
+        <menu>
+          <button value="cancel" class="secondary-btn">Cancelar</button>
+          <button value="default" class="primary-btn">Publicar</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="mentideroModal" class="modal">
+      <form method="dialog" class="modal-card" id="mentideroForm">
+        <div class="modal-head">
+          <h3>Compartir en el Mentidero</h3>
+          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="form-grid">
+          <label>
+            Categoría
+            <select id="nuevoMentideroTipo" required>
+              <option value="mensaje">Mensaje positivo</option>
+              <option value="poesia">Poesía</option>
+              <option value="historia">Historia local</option>
+              <option value="reflexion">Reflexión</option>
+            </select>
+          </label>
+          <label>
+            Título
+            <input id="nuevoMentideroTitulo" type="text" required placeholder="Ej. Buenos días desde La Restinga" />
+          </label>
+          <label class="full-width">
+            Texto
+            <textarea id="nuevoMentideroTexto" rows="5" required placeholder="Comparte algo que reconforte, inspire o haga sonreír"></textarea>
+          </label>
+        </div>
+        <menu>
+          <button value="cancel" class="secondary-btn">Cancelar</button>
+          <button value="default" class="primary-btn">Publicar</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="alertaModal" class="modal">
+      <form method="dialog" class="modal-card" id="alertaForm">
+        <div class="modal-head">
+          <h3>Crear alerta vecinal</h3>
+          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+        </div>
+        <div class="form-grid">
+          <label>
+            Zona
+            <input id="nuevaAlertaZona" type="text" required placeholder="La Llanía, Jinama, El Pinar..." />
+          </label>
+          <label>
+            Prioridad
+            <select id="nuevaAlertaNivel" required>
+              <option value="alta">Alta</option>
+              <option value="media">Media</option>
+              <option value="informativa">Informativa</option>
+            </select>
+          </label>
+          <label>
+            Título
+            <input id="nuevaAlertaTitulo" type="text" required placeholder="Ej. Niebla densa en La Llanía" />
+          </label>
+          <label>
+            Vigencia
+            <input id="nuevaAlertaVigencia" type="text" required placeholder="Hasta las 18:00" />
+          </label>
+          <label class="full-width">
+            Detalle
+            <textarea id="nuevaAlertaDetalle" rows="4" required placeholder="Describe el aviso y la recomendación para vecinos o senderistas"></textarea>
+          </label>
+        </div>
+        <menu>
+          <button value="cancel" class="secondary-btn">Cancelar</button>
+          <button value="default" class="primary-btn">Publicar</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script src="app.js" defer></script>
+  </body>
+</html>
