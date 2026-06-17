@@ -71,3 +71,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
+    // --- 3. Motor de Publicación del Mercadillo de Favores ---
+    const favorForm = document.getElementById('favorForm');
+    const favoresList = document.getElementById('favoresList');
+    const inicioFavores = document.getElementById('inicioFavores');
+    const favoresCount = document.getElementById('favoresCount');
+    let contadorFavores = 0;
+
+    if (favorForm) {
+        favorForm.addEventListener('submit', (e) => {
+            // Impedimos que la página se recargue por defecto al enviar
+            e.preventDefault();
+
+            // Recogemos los datos que has escrito en la ventana emergente
+            const tipo = document.getElementById('nuevoFavorTipo').value;
+            const titulo = document.getElementById('nuevoFavorTitulo').value;
+            const zona = document.getElementById('nuevoFavorZona').value;
+            const tags = document.getElementById('nuevoFavorTags').value;
+            const detalle = document.getElementById('nuevoFavorDetalle').value;
+
+            // Creamos la estructura HTML de la tarjeta Premium
+            const nuevaTarjeta = document.createElement('article');
+            nuevaTarjeta.className = 'post-card';
+            nuevaTarjeta.innerHTML = `
+                <div class="post-head">
+                    <div>
+                        <span class="badge ${tipo}">${tipo === 'ofrezco' ? 'Ofrezco ayuda' : 'Necesito ayuda'}</span>
+                        <span class="badge zona">📍 ${zona}</span>
+                    </div>
+                </div>
+                <h3 class="post-title">${titulo}</h3>
+                <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${detalle}</p>
+                <div class="post-meta">
+                    <span>🏷️ ${tags ? tags : 'comunidad'}</span>
+                    <span>• Hace un momento</span>
+                </div>
+            `;
+
+            // 1. Añadir la tarjeta completa a la pestaña grande del Mercadillo
+            if (favoresList) {
+                favoresList.insertBefore(nuevaTarjeta, favoresList.firstChild);
+            }
+
+            // 2. Crear una versión compacta para el panel de "Favores recientes" de la pantalla de inicio
+            if (inicioFavores) {
+                const tarjetaMini = document.createElement('div');
+                tarjetaMini.style.padding = '12px';
+                tarjetaMini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+                tarjetaMini.innerHTML = `
+                    <strong style="color: var(--pinar-green); font-size: 14px;">[${zona}]</strong> 
+                    <span style="font-size: 14px; color: var(--text-main); font-weight: 500;">${titulo}</span>
+                `;
+                inicioFavores.insertBefore(tarjetaMini, inicioFavores.firstChild);
+            }
+
+            // 3. Actualizar el marcador del menú izquierdo "Resumen del día"
+            contadorFavores++;
+            if (favoresCount) {
+                favoresCount.textContent = contadorFavores;
+            }
+
+            // Limpiar el formulario para la próxima vez y cerrar el modal
+            favorForm.reset();
+            const modal = document.getElementById('favorModal');
+            if (modal) modal.close();
+        });
+    }
