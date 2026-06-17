@@ -1,32 +1,35 @@
 /* ==========================================================================
    Variables Premium - Colores inspirados en El Hierro
    ========================================================================== */
+/* ==========================================================================
+   Variables Premium Equilibradas - Tonos Suaves para El Hierro
+   ========================================================================== */
 :root {
-    --bg-main: #f5f6f3;          /* Arena suave volcánico */
-    --text-main: #14241e;        /* Verde pino profundo para lectura perfecta */
-    --text-muted: #55665e;       /* Texto secundario suave */
+    --bg-main: #f0f2ee;          /* Tono arena-neblina muy suave que relaja la vista */
+    --text-main: #1c2e26;        /* Verde oscuro suave para lectura perfecta */
+    --text-muted: #5e7067;       /* Texto secundario mate */
     
-    /* Identidad El Pinar */
-    --pinar-green: #1e6b5c;      /* Verde laurisilva marca de la app */
-    --pinar-dark: #0f1c17;       /* Fondo de la barra lateral */
-    --pinar-accent: #dca842;     /* Oro viejo para detalles premium */
+    /* Identidad El Pinar Suavizada */
+    --pinar-green: #1e6b5c;      /* Verde laurisilva corporativo */
+    --pinar-dark: #1b2622;       /* Barra lateral: Pizarra boscoso, menos negro y más integrado */
+    --pinar-accent: #cfa03f;     /* Oro viejo elegante para detalles */
     
-    /* Efecto Cristal (Glassmorphism) */
-    --glass-bg: rgba(255, 255, 255, 0.65);
-    --glass-border: rgba(255, 255, 255, 0.4);
-    --glass-shadow: rgba(15, 28, 23, 0.04);
+    /* Efecto Cristal Avanzado (Glassmorphic) */
+    --glass-bg: rgba(255, 255, 255, 0.75); /* Cristal más denso para suavizar el fondo */
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-shadow: rgba(27, 38, 34, 0.03);
 }
 
 /* ==========================================================================
-   Estilos Base y Estructura Principal
+   Estilos Base con Degradado de Integración
    ========================================================================== */
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-main);
-    /* Fondo artístico sutil para que el efecto cristal cobre vida */
+    /* El truco premium: un degradado fluido que une visualmente la izquierda y la derecha */
     background-image: 
-        radial-gradient(at 0% 0%, rgba(30, 107, 92, 0.05) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(220, 168, 66, 0.03) 0px, transparent 50%);
+        radial-gradient(at 0% 50%, rgba(30, 107, 92, 0.06) 0px, transparent 60%),
+        radial-gradient(at 100% 100%, rgba(207, 160, 63, 0.04) 0px, transparent 60%);
     color: var(--text-main);
     margin: 0;
     padding: 0;
@@ -148,4 +151,248 @@ button.primary-btn {
 
 button.primary-btn:hover {
     background-color: #154d42;
+}
+/* ==========================================================================
+   Estructuras de Rejilla (Grids y Paneles) - Premium
+   ========================================================================== */
+.hero {
+    margin-bottom: 8px;
+}
+
+/* Las 3 tarjetas de Inicio alineadas de forma moderna */
+.cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+/* El panel inferior dividido en 2 columnas equilibradas */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+}
+
+/* Paneles internos */
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 12px;
+    margin-bottom: 8px;
+}
+
+.panel-head h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Pequeños botones de texto estilizados */
+.text-btn, .inline-btn {
+    background: transparent;
+    border: 1px solid var(--pinar-green);
+    color: var(--pinar-green);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    align-self: flex-start;
+}
+
+.text-btn:hover, .inline-btn:hover {
+    background-color: var(--pinar-green);
+    color: #ffffff;
+}
+
+/* Listas internas en cascada */
+.stack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+/* ==========================================================================
+   Control de Pantallas y Vistas (Navegación)
+   ========================================================================== */
+/* Oculta todas las secciones por defecto */
+.view {
+    display: none !important;
+}
+
+/* Muestra únicamente la sección que tenga la clase active */
+.view.active {
+    display: flex !important;
+    flex-direction: column;
+    gap: 32px;
+}
+
+/* Estilo para los encabezados de cada sección */
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.section-head h2 {
+    margin: 4px 0 0 0;
+    font-size: 28px;
+    font-weight: 800;
+}
+/* ==========================================================================
+   Detalles de Color Temáticos (Acentos Premium)
+   ========================================================================== */
+/* Crea una sutil línea superior de color en cada tarjeta destacada */
+.accent-green { border-top: 4px solid #1e6b5c !important; }   /* Verde Laurisilva */
+.accent-amber { border-top: 4px solid #cfa03f !important; }   /* Oro Viejo */
+.accent-coral { border-top: 4px solid #d46a55 !important; }   /* Teja Volcánico */
+/* ==========================================================================
+   Ventanas Emergentes Premium (Modales / Dialogs)
+   ========================================================================== */
+/* Estilo base del cuadro de diálogo */
+dialog.modal {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 0;
+    box-shadow: 0 20px 50px rgba(15, 28, 23, 0.15);
+    max-width: 550px;
+    width: 90%;
+    overflow: hidden;
+}
+
+/* Animación de apertura suave */
+dialog.modal[open] {
+    animation: fadeInModal 0.3s ease forwards;
+}
+
+@keyframes fadeInModal {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Fondo oscurecido exterior (Backdrop) */
+dialog.modal::backdrop {
+    background: rgba(15, 28, 23, 0.4);
+    backdrop-filter: blur(4px);
+}
+
+/* Tarjeta interna del modal */
+.modal-card {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Cabecera del modal */
+.modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 16px;
+}
+
+.modal-head h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Botón de cerrar de la esquina (✕) */
+.icon-btn {
+    background: rgba(0, 0, 0, 0.03);
+    border: none;
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.icon-btn:hover {
+    background: rgba(212, 106, 85, 0.1);
+    color: #d46a55;
+}
+
+/* Formularios estilizados dentro del modal */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+/* Inputs, Selects y Textareas premium */
+.form-grid input, 
+.form-grid select, 
+.form-grid textarea {
+    font-family: 'Inter', sans-serif;
+    padding: 10px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--text-main);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.form-grid input:focus, 
+.form-grid select:focus, 
+.form-grid textarea:focus {
+    border-color: var(--pinar-green);
+    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.12);
+}
+
+/* Botones inferiores del modal */
+menu {
+    margin: 8px 0 0 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+button.secondary-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    color: var(--text-muted);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+button.secondary-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.2);
 }
