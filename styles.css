@@ -396,3 +396,7 @@ button.secondary-btn:hover {
     background: rgba(0, 0, 0, 0.03);
     border-color: rgba(0, 0, 0, 0.2);
 }
+/* Refuerzo para garantizar que los modales se posicionen en el centro de la pantalla */
+dialog.modal {
+    margin: auto;
+}
