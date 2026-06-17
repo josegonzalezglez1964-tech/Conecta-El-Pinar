@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (favorTipoSelect) favorTipoSelect.addEventListener('change', ejecutarFiltroFavores);
     if (favorBusquedaInput) favorBusquedaInput.addEventListener('input', ejecutarFiltroFavores);
-    // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
+       // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
     const profileForm = document.getElementById('profileForm');
     
     const profileName = document.getElementById('profileName');
@@ -171,11 +171,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (nombre && nombre !== 'Vecino/a de El Pinar') {
                 profileAvatar.textContent = nombre.charAt(0).toUpperCase();
             }
-
-            alert('¡Perfil vecinal guardado correctamente en tu pantalla!');
         });
     }
-
 
     // --- 6. MOTORES ADICIONALES (MENTIDERO Y ALERTAS) ---
     const mentideroForm = document.getElementById('mentideroForm');
