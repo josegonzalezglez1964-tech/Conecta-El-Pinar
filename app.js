@@ -1,77 +1,63 @@
 // ==========================================================================
-// Control General de Interactividad - PinarConnect
+// PinarConnect - MOTOR SCRIPT (PARTE 1)
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
     
-    // --- 1. Sincronización y Navegación del Menú Lateral ---
+    // --- 1. SINCRONIZACIÓN Y NAVEGACIÓN DEL MENÚ LATERAL ---
     const navTabs = document.querySelectorAll('.nav-tab');
     const sections = document.querySelectorAll('.view');
     const inlineBtns = document.querySelectorAll('[data-switch-view]');
 
-    // Función unificada para cambiar de pantalla
     function switchView(viewName) {
-        // Quitar la clase activa de todos los botones del menú y secciones
         navTabs.forEach(tab => tab.classList.remove('active'));
         sections.forEach(sec => sec.classList.remove('active'));
 
-        // Activar el botón correspondiente del menú lateral
         const activeTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
         if (activeTab) activeTab.classList.add('active');
 
-        // Activar la sección de contenido correcta
         const targetSection = document.getElementById(`view-${viewName}`);
         if (targetSection) targetSection.classList.add('active');
         
-        // Desplazar la pantalla hacia arriba al cambiar de vista
         const contentContainer = document.querySelector('.content');
         if (contentContainer) contentContainer.scrollTop = 0;
     }
 
-    // Escuchar clics en el menú lateral principal
     navTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            const viewName = tab.getAttribute('data-view');
-            switchView(viewName);
+            switchView(tab.getAttribute('data-view'));
         });
     });
 
-    // Escuchar clics en los botones "Entrar" o "Ver todo" de las tarjetas de inicio
     inlineBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const viewName = btn.getAttribute('data-switch-view');
-            switchView(viewName);
+            switchView(btn.getAttribute('data-switch-view'));
         });
     });
 
 
-    // --- 2. Control de Ventanas Emergentes (Modales) ---
+    // --- 2. CONTROL DE VENTANAS EMERGENTES (MODALES) ---
     const openButtons = document.querySelectorAll('[data-open-modal]');
     
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
             const modalType = button.getAttribute('data-open-modal');
             const targetModal = document.getElementById(`${modalType}Modal`);
-            if (targetModal) {
-                targetModal.showModal();
-            }
+            if (targetModal) targetModal.showModal();
         });
     });
 
-    // Controlar el cierre al pulsar el botón Cancelar o la equis (✕)
     const closeButtons = document.querySelectorAll('dialog.modal button[value="cancel"], dialog.modal .secondary-btn');
-    
     closeButtons.forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const modal = button.closest('dialog.modal');
-            if (modal) {
-                modal.close();
-            }
+            if (modal) modal.close();
         });
     });
-});
-    // --- 3. Motor de Publicación del Mercadillo de Favores ---
+
+
+    // --- 3. MOTOR DE PUBLICACIÓN - MERCADILLO DE FAVORES ---
     const favorForm = document.getElementById('favorForm');
     const favoresList = document.getElementById('favoresList');
     const inicioFavores = document.getElementById('inicioFavores');
@@ -80,19 +66,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (favorForm) {
         favorForm.addEventListener('submit', (e) => {
-            // Impedimos que la página se recargue por defecto al enviar
             e.preventDefault();
 
-            // Recogemos los datos que has escrito en la ventana emergente
             const tipo = document.getElementById('nuevoFavorTipo').value;
             const titulo = document.getElementById('nuevoFavorTitulo').value;
             const zona = document.getElementById('nuevoFavorZona').value;
             const tags = document.getElementById('nuevoFavorTags').value;
             const detalle = document.getElementById('nuevoFavorDetalle').value;
 
-            // Creamos la estructura HTML de la tarjeta Premium
             const nuevaTarjeta = document.createElement('article');
             nuevaTarjeta.className = 'post-card';
+            nuevaTarjeta.setAttribute('data-tipo', tipo);
+            nuevaTarjeta.setAttribute('data-buscar', `${titulo} ${detalle} ${zona}`.toLowerCase());
+            
             nuevaTarjeta.innerHTML = `
                 <div class="post-head">
                     <div>
@@ -108,36 +94,90 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            // 1. Añadir la tarjeta completa a la pestaña grande del Mercadillo
-            if (favoresList) {
-                favoresList.insertBefore(nuevaTarjeta, favoresList.firstChild);
-            }
+            if (favoresList) favoresList.insertBefore(nuevaTarjeta, favoresList.firstChild);
 
-            // 2. Crear una versión compacta para el panel de "Favores recientes" de la pantalla de inicio
             if (inicioFavores) {
                 const tarjetaMini = document.createElement('div');
                 tarjetaMini.style.padding = '12px';
                 tarjetaMini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
-                tarjetaMini.innerHTML = `
-                    <strong style="color: var(--pinar-green); font-size: 14px;">[${zona}]</strong> 
-                    <span style="font-size: 14px; color: var(--text-main); font-weight: 500;">${titulo}</span>
-                `;
+                tarjetaMini.innerHTML = `<strong style="color: var(--pinar-green); font-size: 14px;">[${zona}]</strong> <span style="font-size: 14px; color: var(--text-main); font-weight: 500;">${titulo}</span>`;
                 inicioFavores.insertBefore(tarjetaMini, inicioFavores.firstChild);
             }
 
-            // 3. Actualizar el marcador del menú izquierdo "Resumen del día"
             contadorFavores++;
-            if (favoresCount) {
-                favoresCount.textContent = contadorFavores;
-            }
+            if (favoresCount) favoresCount.textContent = contadorFavores;
 
-            // Limpiar el formulario para la próxima vez y cerrar el modal
             favorForm.reset();
-            const modal = document.getElementById('favorModal');
-            if (modal) modal.close();
+            document.getElementById('favorModal').close();
+            ejecutarFiltroFavores();
         });
     }
-    // --- 4. Motor de Publicación de El Mentidero Digital ---
+
+
+    // --- 4. SISTEMA DE FILTRADO REAL (MERCADILLO DE FAVORES) ---
+    const favorTipoSelect = document.getElementById('favorTipo');
+    const favorBusquedaInput = document.getElementById('favorBusqueda');
+
+    function ejecutarFiltroFavores() {
+        const tipoSeleccionado = favorTipoSelect.value;
+        const textoBusqueda = favorBusquedaInput.value.toLowerCase().trim();
+        const tarjetas = favoresList ? favoresList.querySelectorAll('.post-card') : [];
+
+        tarjetas.forEach(tarjeta => {
+            const tipoTarjeta = tarjeta.getAttribute('data-tipo');
+            const contenidoBusqueda = tarjeta.getAttribute('data-buscar');
+
+            const coincideTipo = (tipoSeleccionado === 'todos' || tipoTarjeta === tipoSeleccionado);
+            const coincideTexto = (textoBusqueda === '' || contenidoBusqueda.includes(textoBusqueda));
+
+            if (coincideTipo && coincideTexto) {
+                tarjeta.style.display = 'flex';
+            } else {
+                tarjeta.style.display = 'none';
+            }
+        });
+    }
+
+    if (favorTipoSelect) favorTipoSelect.addEventListener('change', ejecutarFiltroFavores);
+    if (favorBusquedaInput) favorBusquedaInput.addEventListener('input', ejecutarFiltroFavores);
+    // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
+    const profileForm = document.getElementById('profileForm');
+    
+    const profileName = document.getElementById('profileName');
+    const profileZone = document.getElementById('profileZone');
+    const profileSkills = document.getElementById('profileSkills');
+    const profileBio = document.getElementById('profileBio');
+
+    const previewName = document.getElementById('previewName');
+    const previewZone = document.getElementById('previewZone');
+    const previewSkills = document.getElementById('previewSkills');
+    const previewBio = document.getElementById('previewBio');
+    const profileAvatar = document.getElementById('profileAvatar');
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', (e) => {
+            e.preventDefault(); 
+
+            const nombre = profileName.value.trim() || 'Vecino/a de El Pinar';
+            const zona = profileZone.value.trim() || 'Comunidad cercana y activa';
+            const habilidades = profileSkills.value.trim() || 'Aún no has indicado qué te gusta compartir.';
+            const biografia = profileBio.value.trim() || '“Aquí siempre cabe un gesto amable más.”';
+
+            previewName.textContent = nombre;
+            previewZone.textContent = `📍 ${zona}`;
+            previewSkills.textContent = habilidades;
+            previewBio.textContent = `“${biografia}”`;
+
+            if (nombre && nombre !== 'Vecino/a de El Pinar') {
+                profileAvatar.textContent = nombre.charAt(0).toUpperCase();
+            }
+
+            alert('¡Perfil vecinal guardado correctamente en tu pantalla!');
+        });
+    }
+
+
+    // --- 6. MOTORES ADICIONALES (MENTIDERO Y ALERTAS) ---
     const mentideroForm = document.getElementById('mentideroForm');
     const mentideroList = document.getElementById('mentideroList');
     const inicioMentidero = document.getElementById('inicioMentidero');
@@ -147,51 +187,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mentideroForm) {
         mentideroForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const categoria = document.getElementById('nuevoMentideroTipo').value;
             const titulo = document.getElementById('nuevoMentideroTitulo').value;
             const texto = document.getElementById('nuevoMentideroTexto').value;
 
-            // Tarjeta grande del Mentidero con diseño tipo tablón/historia
             const nuevaTarjeta = document.createElement('article');
             nuevaTarjeta.className = 'post-card';
-            nuevaTarjeta.style.borderLeft = '4px solid var(--pinar-accent)'; // Toque oro viejo
+            nuevaTarjeta.style.borderLeft = '4px solid var(--pinar-accent)';
             nuevaTarjeta.innerHTML = `
-                <div class="post-head">
-                    <span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${categoria}</span>
-                </div>
+                <div class="post-head"><span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${categoria}</span></div>
                 <h3 class="post-title" style="font-style: italic;">"${titulo}"</h3>
                 <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${texto}</p>
-                <div class="post-meta">
-                    <span>✍️ Vecino/a de El Pinar • Hace un momento</span>
-                </div>
+                <div class="post-meta"><span>✍️ Vecino/a de El Pinar • Hace un momento</span></div>
             `;
+            if (mentideroList) mentideroList.insertBefore(nuevaTarjeta, mentideroList.firstChild);
 
-            if (mentideroList) {
-                mentideroList.insertBefore(nuevaTarjeta, mentideroList.firstChild);
-            }
-
-            // Versión compacta para la pantalla de Inicio
             if (inicioMentidero) {
                 const tarjetaMini = document.createElement('div');
                 tarjetaMini.style.padding = '12px';
                 tarjetaMini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
-                tarjetaMini.innerHTML = `
-                    <span style="font-size: 14px; color: var(--text-muted); font-style: italic;">"${titulo}"</span>
-                `;
+                tarjetaMini.innerHTML = `<span style="font-size: 14px; color: var(--text-muted); font-style: italic;">"${titulo}"</span>`;
                 inicioMentidero.insertBefore(tarjetaMini, inicioMentidero.firstChild);
             }
-
             contadorMentidero++;
             if (mentideroCount) mentideroCount.textContent = contadorMentidero;
-
             mentideroForm.reset();
-            const modal = document.getElementById('mentideroModal');
-            if (modal) modal.close();
+            document.getElementById('mentideroModal').close();
         });
     }
 
-    // --- 5. Motor de Publicación de Alertas Vecinales ---
     const alertaForm = document.getElementById('alertaForm');
     const alertasList = document.getElementById('alertasList');
     const alertasCount = document.getElementById('alertasCount');
@@ -200,15 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (alertaForm) {
         alertaForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const zona = document.getElementById('nuevaAlertaZona').value;
             const prioridad = document.getElementById('nuevaAlertaNivel').value;
             const titulo = document.getElementById('nuevaAlertaTitulo').value;
             const vigencia = document.getElementById('nuevaAlertaVigencia').value;
             const detalle = document.getElementById('nuevaAlertaDetalle').value;
 
-            // Definición de colores según la gravedad de la alerta
-            let colorAlerta = '#d46a55'; // Coral por defecto
+            let colorAlerta = '#d46a55';
             if (prioridad === 'alta') colorAlerta = '#e0533c';
             if (prioridad === 'informativa') colorAlerta = '#3498db';
 
@@ -225,20 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <h3 class="post-title">${titulo}</h3>
                 <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${detalle}</p>
-                <div class="post-meta">
-                    <span>• Publicado ahora mismo</span>
-                </div>
+                <div class="post-meta"><span>• Publicado ahora mismo</span></div>
             `;
-
-            if (alertasList) {
-                alertasList.insertBefore(nuevaTarjeta, alertasList.firstChild);
-            }
-
+            if (alertasList) alertasList.insertBefore(nuevaTarjeta, alertasList.firstChild);
             contadorAlertas++;
             if (alertasCount) alertasCount.textContent = contadorAlertas;
-
             alertaForm.reset();
-            const modal = document.getElementById('alertaModal');
-            if (modal) modal.close();
+            document.getElementById('alertaModal').close();
         });
     }
+});
