@@ -400,3 +400,138 @@ button.secondary-btn:hover {
 dialog.modal {
     margin: auto;
 }
+/* ==========================================================================
+   Estilos de Contenido Real (Tarjetas de Feed e Historial)
+   ========================================================================= */
+/* Rejillas para los listados de favores y alertas */
+.feed-grid, .alerts-grid, .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+/* Tarjeta individual de favor/alerta publicada */
+.post-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px var(--glass-shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.post-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.post-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+/* Etiquetas internas (Ej: "Ofrezco", "Necesito", Zona) */
+.badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.badge.ofrezco { background: rgba(30, 107, 92, 0.1); color: var(--pinar-green); }
+.badge.necesito { background: rgba(212, 106, 85, 0.1); color: #d46a55; }
+.badge.zona { background: rgba(0, 0, 0, 0.04); color: var(--text-muted); }
+
+.post-meta {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Barras de Herramientas y Filtros (Otras Secciones)
+   ========================================================================== */
+.toolbar {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    padding: 16px 20px !important;
+    margin-bottom: 8px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.filter-group.grow { flex: 1; }
+
+.filter-group label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+/* Inputs y Selects de las barras de búsqueda superiores */
+.toolbar input, .toolbar select {
+    font-family: 'Inter', sans-serif;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.toolbar input:focus, .toolbar select:focus {
+    border-color: var(--pinar-green);
+    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.1);
+}
+
+/* ==========================================================================
+   Sección de Perfil Vecinal Premium
+   ========================================================================== */
+.profile-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+/* Cuadro de vista previa del perfil */
+.profile-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px 0;
+}
+
+.avatar {
+    width: 64px;
+    height: 64px;
+    background: var(--pinar-green);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 10px rgba(30, 107, 92, 0.2);
+}
+
+/* Formularios de configuración */
+.form-grid.compact input, .form-grid.compact textarea {
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
