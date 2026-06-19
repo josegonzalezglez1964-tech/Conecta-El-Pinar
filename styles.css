@@ -556,20 +556,32 @@ dialog.modal {
     padding: 15px;
   }
 
-  /* Los botones de navegación se ponen en horizontal con scroll si no caben */
+  /* Menú de navegación horizontal y deslizable con el dedo */
   .nav-tabs {
-    display: flex;
-    flex-direction: row;
-    overflow-x: auto;
-    white-space: nowrap;
-    gap: 8px;
-    padding-bottom: 5px;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important; /* Fuerza el scroll horizontal */
+    overflow-y: hidden !important;
+    white-space: nowrap !important; /* Evita que los botones salten de línea */
+    gap: 10px !important;
+    padding: 10px 5px !important;
+    width: 100% !important;
+    -webkit-overflow-scrolling: touch; /* Hace que el deslizamiento en móvil sea ultra suave */
+    scrollbar-width: none; /* Oculta la barra de scroll en Firefox */
+  }
+
+  /* Oculta la barra de scroll en Chrome/Safari para mantener el diseño limpio */
+  .nav-tabs::-webkit-scrollbar {
+    display: none;
   }
   
+  /* Asegura que cada botón mantenga su tamaño real y no se aplaste */
   .nav-tab {
-    flex: 0 0 auto; /* Evita que los botones se encojan */
-    padding: 8px 15px;
+    flex: 0 0 auto !important; 
+    padding: 10px 16px !important;
+    display: inline-block !important;
   }
+
 
   /* Oculta las tarjetas secundarias de la sidebar en móvil para ahorrar espacio */
   .status-card, .quote-card {
