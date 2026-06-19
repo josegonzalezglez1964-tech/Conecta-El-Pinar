@@ -1,51 +1,56 @@
 /* ==========================================================================
    Variables Premium - Colores inspirados en El Hierro
    ========================================================================== */
-/* ==========================================================================
-   Variables Premium Equilibradas - Tonos Suaves para El Hierro
-   ========================================================================== */
 :root {
-    --bg-main: #f0f2ee;          /* Tono arena-neblina muy suave que relaja la vista */
-    --text-main: #1c2e26;        /* Verde oscuro suave para lectura perfecta */
-    --text-muted: #5e7067;       /* Texto secundario mate */
-    
-    /* Identidad El Pinar Suavizada */
-    --pinar-green: #1e6b5c;      /* Verde laurisilva corporativo */
-    --pinar-dark: #1b2622;       /* Barra lateral: Pizarra boscoso, menos negro y más integrado */
-    --pinar-accent: #cfa03f;     /* Oro viejo elegante para detalles */
-    
-    /* Efecto Cristal Avanzado (Glassmorphic) */
-    --glass-bg: rgba(255, 255, 255, 0.75); /* Cristal más denso para suavizar el fondo */
+    --bg-main: #f0f2ee;
+    --text-main: #1c2e26;
+    --text-muted: #5e7067;
+
+    --pinar-green: #1e6b5c;
+    --pinar-dark: #1b2622;
+    --pinar-accent: #cfa03f;
+
+    --glass-bg: rgba(255, 255, 255, 0.75);
     --glass-border: rgba(255, 255, 255, 0.6);
     --glass-shadow: rgba(27, 38, 34, 0.03);
+
+    --sidebar-width: 280px;
 }
 
 /* ==========================================================================
-   Estilos Base con Degradado de Integración
+   Reset y Base
    ========================================================================== */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-main);
-    /* El truco premium: un degradado fluido que une visualmente la izquierda y la derecha */
-    background-image: 
+    background-image:
         radial-gradient(at 0% 50%, rgba(30, 107, 92, 0.06) 0px, transparent 60%),
         radial-gradient(at 100% 100%, rgba(207, 160, 63, 0.04) 0px, transparent 60%);
     color: var(--text-main);
     margin: 0;
     padding: 0;
     min-height: 100vh;
+    overflow-x: hidden;
 }
 
+/* ==========================================================================
+   Estructura Principal (Desktop)
+   ========================================================================== */
 .app-shell {
     display: flex;
     min-height: 100vh;
 }
 
 /* ==========================================================================
-   Barra Lateral Premium (Sidebar)
+   Barra Lateral (Sidebar) - Desktop
    ========================================================================== */
 .sidebar {
-    width: 280px;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background-color: var(--pinar-dark);
     color: #ffffff;
     padding: 24px;
@@ -53,15 +58,31 @@ body {
     flex-direction: column;
     gap: 24px;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
 }
 
-/* Ajustes de textos dentro de la barra lateral */
+.brand-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.brand-mark {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
 .sidebar h1 {
     font-size: 22px;
     font-weight: 800;
     color: #ffffff;
     margin: 0;
 }
+
 .sidebar .eyebrow {
     color: var(--pinar-accent);
     text-transform: uppercase;
@@ -70,13 +91,14 @@ body {
     letter-spacing: 1px;
     margin: 0;
 }
+
 .sidebar .muted {
     color: #a3b8b0;
     font-size: 13px;
     margin: 4px 0 0 0;
 }
 
-/* Botones de Navegación del Menú Lateral */
+/* Navegación del Menú Lateral */
 .nav-tabs {
     display: flex;
     flex-direction: column;
@@ -90,23 +112,84 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.05);
     color: #a3b8b0;
     text-align: left;
+    font-family: 'Inter', sans-serif;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     border-radius: 8px;
     transition: all 0.25s ease;
+    white-space: nowrap;
 }
 
-/* Botón activo y efectos al pasar el ratón */
-.nav-tab:hover, .nav-tab.active {
+.nav-tab:hover,
+.nav-tab.active {
     background-color: var(--pinar-green);
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.1);
-    transform: translateX(4px);
+}
+
+/* Tarjetas de estado y cita del sidebar */
+.status-card,
+.quote-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.status-card h2 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 700;
+    color: #a3b8b0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.status-grid > div {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.status-number {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--pinar-accent);
+    line-height: 1;
+}
+
+.status-label {
+    font-size: 13px;
+    color: #a3b8b0;
+}
+
+.quote-card .eyebrow {
+    color: var(--pinar-accent);
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0 0 8px 0;
+    display: block;
+}
+
+.quote-card blockquote {
+    margin: 0;
+    font-size: 13px;
+    color: #c0d0ca;
+    font-style: italic;
+    line-height: 1.6;
 }
 
 /* ==========================================================================
-   Contenido, Tarjetas y Efecto Cristal (Glassmorphism)
+   Área de Contenido Principal
    ========================================================================== */
 .content {
     flex: 1;
@@ -115,9 +198,12 @@ body {
     flex-direction: column;
     gap: 32px;
     overflow-y: auto;
+    min-width: 0; /* Evita overflow en flex */
 }
 
-/* Estilo unificado para tarjetas transparentes premium */
+/* ==========================================================================
+   Efecto Cristal (Glassmorphism)
+   ========================================================================== */
 .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -129,14 +215,13 @@ body {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Animación al pasar el ratón por encima de las tarjetas */
 .glass:hover {
-    transform: translateY(-4px);
+    transform: translateY(-3px);
     box-shadow: 0 12px 40px rgba(30, 107, 92, 0.08);
 }
 
 /* ==========================================================================
-   Botones de la Aplicación
+   Botones
    ========================================================================== */
 button.primary-btn {
     background-color: var(--pinar-green);
@@ -144,176 +229,59 @@ button.primary-btn {
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    white-space: nowrap;
 }
 
 button.primary-btn:hover {
     background-color: #154d42;
 }
-/* ==========================================================================
-   Estructuras de Rejilla (Grids y Paneles) - Premium
-   ========================================================================== */
-.hero {
-    margin-bottom: 8px;
+
+button.secondary-btn {
+    background: transparent;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: var(--text-muted);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
-/* Las 3 tarjetas de Inicio alineadas de forma moderna */
-.cards-3 {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 24px;
-    margin-bottom: 32px;
+button.secondary-btn:hover {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.2);
 }
 
-/* El panel inferior dividido en 2 columnas equilibradas */
-.dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 24px;
-}
-
-/* Paneles internos */
-.panel {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.panel-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding-bottom: 12px;
-    margin-bottom: 8px;
-}
-
-.panel-head h3 {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-/* Pequeños botones de texto estilizados */
-.text-btn, .inline-btn {
+.text-btn,
+.inline-btn {
     background: transparent;
     border: 1px solid var(--pinar-green);
     color: var(--pinar-green);
     padding: 6px 14px;
     border-radius: 6px;
+    font-family: 'Inter', sans-serif;
     font-weight: 600;
     font-size: 13px;
     cursor: pointer;
     transition: all 0.2s ease;
     align-self: flex-start;
+    white-space: nowrap;
 }
 
-.text-btn:hover, .inline-btn:hover {
+.text-btn:hover,
+.inline-btn:hover {
     background-color: var(--pinar-green);
     color: #ffffff;
 }
 
-/* Listas internas en cascada */
-.stack-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-/* ==========================================================================
-   Control de Pantallas y Vistas (Navegación)
-   ========================================================================== */
-/* Oculta todas las secciones por defecto */
-.view {
-    display: none !important;
-}
-
-/* Muestra únicamente la sección que tenga la clase active */
-.view.active {
-    display: flex !important;
-    flex-direction: column;
-    gap: 32px;
-}
-
-/* Estilo para los encabezados de cada sección */
-.section-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-}
-
-.section-head h2 {
-    margin: 4px 0 0 0;
-    font-size: 28px;
-    font-weight: 800;
-}
-/* ==========================================================================
-   Detalles de Color Temáticos (Acentos Premium)
-   ========================================================================== */
-/* Crea una sutil línea superior de color en cada tarjeta destacada */
-.accent-green { border-top: 4px solid #1e6b5c !important; }   /* Verde Laurisilva */
-.accent-amber { border-top: 4px solid #cfa03f !important; }   /* Oro Viejo */
-.accent-coral { border-top: 4px solid #d46a55 !important; }   /* Teja Volcánico */
-/* ==========================================================================
-   Ventanas Emergentes Premium (Modales / Dialogs)
-   ========================================================================== */
-/* Estilo base del cuadro de diálogo */
-dialog.modal {
-    background: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid var(--glass-border);
-    border-radius: 20px;
-    padding: 0;
-    box-shadow: 0 20px 50px rgba(15, 28, 23, 0.15);
-    max-width: 550px;
-    width: 90%;
-    overflow: hidden;
-}
-
-/* Animación de apertura suave */
-dialog.modal[open] {
-    animation: fadeInModal 0.3s ease forwards;
-}
-
-@keyframes fadeInModal {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Fondo oscurecido exterior (Backdrop) */
-dialog.modal::backdrop {
-    background: rgba(15, 28, 23, 0.4);
-    backdrop-filter: blur(4px);
-}
-
-/* Tarjeta interna del modal */
-.modal-card {
-    padding: 28px;
-    display: flex;
-    flex-direction: column;
-    gap: 24px;
-}
-
-/* Cabecera del modal */
-.modal-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-    padding-bottom: 16px;
-}
-
-.modal-head h3 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-/* Botón de cerrar de la esquina (✕) */
 .icon-btn {
     background: rgba(0, 0, 0, 0.03);
     border: none;
@@ -327,6 +295,7 @@ dialog.modal::backdrop {
     justify-content: center;
     font-size: 14px;
     transition: all 0.2s ease;
+    flex-shrink: 0;
 }
 
 .icon-btn:hover {
@@ -334,84 +303,214 @@ dialog.modal::backdrop {
     color: #d46a55;
 }
 
-/* Formularios estilizados dentro del modal */
-.form-grid {
+/* ==========================================================================
+   Hero
+   ========================================================================== */
+.hero {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.hero h2 {
+    margin: 8px 0;
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.hero .eyebrow {
+    color: var(--pinar-green);
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.hero-copy {
+    margin: 8px 0 0 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 60ch;
+}
+
+.hero-actions {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Vistas (Secciones)
+   ========================================================================== */
+.view {
+    display: none !important;
+}
+
+.view.active {
+    display: flex !important;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     gap: 16px;
 }
 
-.form-grid label {
+.section-head .eyebrow {
+    color: var(--pinar-green);
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+.section-head h2 {
+    margin: 4px 0 0 0;
+    font-size: 28px;
+    font-weight: 800;
+}
+
+/* ==========================================================================
+   Rejillas de Inicio
+   ========================================================================== */
+.cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.feature-card {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--text-muted);
-}
-
-/* Inputs, Selects y Textareas premium */
-.form-grid input, 
-.form-grid select, 
-.form-grid textarea {
-    font-family: 'Inter', sans-serif;
-    padding: 10px 14px;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    background: #ffffff;
-    color: var(--text-main);
-    font-size: 14px;
-    transition: all 0.2s ease;
-    outline: none;
-}
-
-.form-grid input:focus, 
-.form-grid select:focus, 
-.form-grid textarea:focus {
-    border-color: var(--pinar-green);
-    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.12);
-}
-
-/* Botones inferiores del modal */
-menu {
-    margin: 8px 0 0 0;
-    padding: 0;
-    display: flex;
-    justify-content: flex-end;
     gap: 12px;
 }
 
-button.secondary-btn {
-    background: transparent;
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    color: var(--text-muted);
-    padding: 12px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+.feature-card h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
 }
 
-button.secondary-btn:hover {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: rgba(0, 0, 0, 0.2);
+.feature-card p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    flex: 1;
 }
-/* Refuerzo para garantizar que los modales se posicionen en el centro de la pantalla */
-dialog.modal {
-    margin: auto;
-}
+
+/* Acentos de color */
+.accent-green { border-top: 4px solid #1e6b5c !important; }
+.accent-amber { border-top: 4px solid #cfa03f !important; }
+.accent-coral { border-top: 4px solid #d46a55 !important; }
+
 /* ==========================================================================
-   Estilos de Contenido Real (Tarjetas de Feed e Historial)
-   ========================================================================= */
-/* Rejillas para los listados de favores y alertas */
-.feed-grid, .alerts-grid, .timeline {
+   Paneles
+   ========================================================================== */
+.panel {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-top: 16px;
 }
 
-/* Tarjeta individual de favor/alerta publicada */
+.panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 12px;
+}
+
+.panel-head h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+.stack-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ==========================================================================
+   Barra de herramientas y filtros
+   ========================================================================== */
+.toolbar {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    padding: 16px 20px !important;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 120px;
+}
+
+.filter-group.grow {
+    flex: 1;
+    min-width: 200px;
+}
+
+.filter-group label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+}
+
+.toolbar input,
+.toolbar select {
+    font-family: 'Inter', sans-serif;
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--text-main);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.toolbar input:focus,
+.toolbar select:focus {
+    border-color: var(--pinar-green);
+    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.1);
+}
+
+/* ==========================================================================
+   Tarjetas de Feed (Favores, Alertas, Mentidero)
+   ========================================================================== */
+.feed-grid,
+.alerts-grid,
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .post-card {
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
@@ -427,23 +526,34 @@ dialog.modal {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.post-head > div {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .post-title {
     margin: 0;
-    font-size: 18px;
+    font-size: 17px;
     font-weight: 700;
     color: var(--text-main);
+    line-height: 1.3;
 }
 
-/* Etiquetas internas (Ej: "Ofrezco", "Necesito", Zona) */
 .badge {
     padding: 4px 10px;
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
     text-transform: uppercase;
+    white-space: nowrap;
 }
+
 .badge.ofrezco { background: rgba(30, 107, 92, 0.1); color: var(--pinar-green); }
 .badge.necesito { background: rgba(212, 106, 85, 0.1); color: #d46a55; }
 .badge.zona { background: rgba(0, 0, 0, 0.04); color: var(--text-muted); }
@@ -453,53 +563,11 @@ dialog.modal {
     gap: 12px;
     font-size: 13px;
     color: var(--text-muted);
+    flex-wrap: wrap;
 }
 
 /* ==========================================================================
-   Barras de Herramientas y Filtros (Otras Secciones)
-   ========================================================================== */
-.toolbar {
-    display: flex;
-    gap: 16px;
-    align-items: center;
-    padding: 16px 20px !important;
-    margin-bottom: 8px;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-.filter-group.grow { flex: 1; }
-
-.filter-group label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    letter-spacing: 0.5px;
-}
-
-/* Inputs y Selects de las barras de búsqueda superiores */
-.toolbar input, .toolbar select {
-    font-family: 'Inter', sans-serif;
-    padding: 8px 12px;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 6px;
-    background: #ffffff;
-    color: var(--text-main);
-    font-size: 14px;
-    outline: none;
-    transition: all 0.2s ease;
-}
-.toolbar input:focus, .toolbar select:focus {
-    border-color: var(--pinar-green);
-    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.1);
-}
-
-/* ==========================================================================
-   Sección de Perfil Vecinal Premium
+   Perfil Vecinal
    ========================================================================== */
 .profile-grid {
     display: grid;
@@ -507,13 +575,33 @@ dialog.modal {
     gap: 24px;
 }
 
-/* Cuadro de vista previa del perfil */
 .profile-preview {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 16px 0;
+    gap: 8px;
+}
+
+.profile-preview h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.profile-preview p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-muted);
+}
+
+.profile-preview blockquote {
+    margin: 8px 0 0 0;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .avatar {
@@ -527,104 +615,378 @@ dialog.modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 8px;
     box-shadow: 0 4px 10px rgba(30, 107, 92, 0.2);
+    flex-shrink: 0;
 }
 
-/* Formularios de configuración */
-.form-grid.compact input, .form-grid.compact textarea {
-    border: 1px solid rgba(0, 0, 0, 0.08);
-}
 /* ==========================================================================
-   ADAPTACIÓN PARA MÓVILES (PinarConnect)
+   Formularios
    ========================================================================== */
-@media (max-width: 850px) {
-  /* Convierte la estructura de dos columnas en una sola columna vertical */
-  .app-shell {
+.form-grid {
     display: flex;
     flex-direction: column;
-    padding: 10px;
-    gap: 15px;
-  }
-
-  /* La barra lateral ahora se adapta al ancho total arriba */
-.sidebar {
-  width: 100% !important;
-  position: relative !important;
-  top: 0 !important;
-  height: auto !important; /* El truco mágico: libera la altura para que respiren los botones */
-  padding: 15px !important;
+    gap: 16px;
 }
 
-  /* Menú de navegación horizontal y deslizable con el dedo */
-  .nav-tabs {
-    display: flex !important;
-    flex-direction: row !important;
-    overflow-x: auto !important; /* Fuerza el scroll horizontal */
-    overflow-y: hidden !important;
-    white-space: nowrap !important; /* Evita que los botones salten de línea */
-    gap: 10px !important;
-    padding: 10px 5px !important;
-    width: 100% !important;
-    -webkit-overflow-scrolling: touch; /* Hace que el deslizamiento en móvil sea ultra suave */
-    scrollbar-width: none; /* Oculta la barra de scroll en Firefox */
-  }
+.form-grid label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
 
-  /* Oculta la barra de scroll en Chrome/Safari para mantener el diseño limpio */
-  .nav-tabs::-webkit-scrollbar {
-    display: none;
-  }
-  
-  /* Asegura que cada botón mantenga su tamaño real y no se aplaste */
-  .nav-tab {
-    flex: 0 0 auto !important; 
-    padding: 10px 16px !important;
-    display: inline-block !important;
-  }
+.form-grid input,
+.form-grid select,
+.form-grid textarea {
+    font-family: 'Inter', sans-serif;
+    padding: 10px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    background: #ffffff;
+    color: var(--text-main);
+    font-size: 14px;
+    transition: all 0.2s ease;
+    outline: none;
+    width: 100%;
+}
 
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+    border-color: var(--pinar-green);
+    box-shadow: 0 0 0 3px rgba(30, 107, 92, 0.12);
+}
 
-  /* Oculta las tarjetas secundarias de la sidebar en móvil para ahorrar espacio */
-  .status-card, .quote-card {
-    display: none; 
-  }
+.form-grid textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 
-  /* El contenido principal toma todo el espacio */
-  .content {
-    width: 100% !important;
+.form-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   Modales / Diálogos
+   ========================================================================== */
+dialog.modal {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
     padding: 0;
-  }
+    box-shadow: 0 20px 50px rgba(15, 28, 23, 0.2);
+    max-width: 550px;
+    width: calc(100% - 32px);
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    margin: auto;
+}
 
-  /* El Hero (encabezado principal) adapta sus botones */
-  .hero {
-    padding: 20px;
-  }
+dialog.modal[open] {
+    animation: fadeInModal 0.25s ease forwards;
+}
 
-  .hero-actions {
+@keyframes fadeInModal {
+    from { opacity: 0; transform: scale(0.96) translateY(-8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+dialog.modal::backdrop {
+    background: rgba(15, 28, 23, 0.45);
+    backdrop-filter: blur(4px);
+}
+
+.modal-card {
+    padding: 28px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    width: 100%;
-  }
+    gap: 24px;
+}
 
-  .hero-actions button, .primary-btn, .secondary-btn {
-    width: 100%; /* Botones grandes y fáciles de pulsar con el dedo */
-    justify-content: center;
-  }
-
-  /* Las rejillas de 3 tarjetas o paneles pasan a ser de 1 sola columna */
-  .cards-3, .dashboard-grid, .toolbar, .profile-grid, .feed-grid {
+.modal-head {
     display: flex;
-    flex-direction: column;
-    width: 100%;
-    gap: 15px;
-  }
-  
-  /* Ajusta los selectores y buscadores de las barras de herramientas */
-  .filter-group {
-    width: 100%;
-  }
-  
-  .filter-group input, .filter-group select {
-    width: 100%;
-  }
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding-bottom: 16px;
+}
+
+.modal-head h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+menu {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Textos de apoyo
+   ========================================================================== */
+.eyebrow {
+    text-transform: uppercase;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+h2, h3, h4 {
+    line-height: 1.2;
+}
+
+/* ==========================================================================
+   RESPONSIVE - TABLET (hasta 1024px)
+   ========================================================================== */
+@media (max-width: 1024px) {
+    .cards-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-actions {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+
+    .hero-actions button {
+        flex: 1;
+        min-width: 150px;
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE - MÓVIL (hasta 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+    /* La estructura principal pasa a columna */
+    .app-shell {
+        flex-direction: column;
+        min-height: 100vh;
+    }
+
+    /* Sidebar en la parte superior, compacto */
+    .sidebar {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        position: static;
+        padding: 16px 16px 8px 16px;
+        gap: 12px;
+        overflow-y: visible;
+    }
+
+    .brand-card {
+        gap: 10px;
+    }
+
+    .brand-mark {
+        font-size: 24px;
+    }
+
+    .sidebar h1 {
+        font-size: 18px;
+    }
+
+    .sidebar .muted {
+        display: none; /* Oculta el subtítulo para ahorrar espacio */
+    }
+
+    /* Oculta las tarjetas de estado y cita en móvil */
+    .status-card,
+    .quote-card {
+        display: none;
+    }
+
+    /* Menú de navegación horizontal deslizable */
+    .nav-tabs {
+        flex-direction: row !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 8px;
+        padding: 4px 2px 10px 2px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .nav-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-tab {
+        flex: 0 0 auto;
+        padding: 9px 16px;
+        font-size: 13px;
+        transform: none !important; /* Desactiva el translateX del hover en móvil */
+        white-space: nowrap;
+    }
+
+    .nav-tab:hover,
+    .nav-tab.active {
+        transform: none;
+    }
+
+    /* Contenido principal */
+    .content {
+        padding: 16px;
+        gap: 20px;
+    }
+
+    /* Hero */
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .hero h2 {
+        font-size: 20px;
+    }
+
+    .hero .hero-copy {
+        font-size: 13px;
+    }
+
+    .hero-actions {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .hero-actions button {
+        width: 100%;
+    }
+
+    /* Rejillas */
+    .cards-3 {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    /* Cabeceras de sección */
+    .section-head {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .section-head h2 {
+        font-size: 22px;
+    }
+
+    /* Barra de herramientas */
+    .toolbar {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px !important;
+    }
+
+    .filter-group,
+    .filter-group.grow {
+        width: 100%;
+        min-width: unset;
+    }
+
+    .toolbar input,
+    .toolbar select {
+        width: 100%;
+    }
+
+    /* Tarjetas de post */
+    .post-card {
+        padding: 16px;
+    }
+
+    .post-title {
+        font-size: 15px;
+    }
+
+    /* Modales */
+    dialog.modal {
+        width: calc(100% - 24px);
+        max-height: calc(100vh - 24px);
+        border-radius: 16px;
+    }
+
+    .modal-card {
+        padding: 20px;
+        gap: 20px;
+    }
+
+    .modal-head h3 {
+        font-size: 17px;
+    }
+
+    menu {
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+
+    menu button {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Botones de acción */
+    button.primary-btn,
+    button.secondary-btn {
+        font-size: 14px;
+        padding: 11px 18px;
+    }
+
+    /* Panel head */
+    .panel-head {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    /* Glass hover desactivado en móvil (no hay hover táctil) */
+    .glass:hover {
+        transform: none;
+        box-shadow: 0 8px 32px var(--glass-shadow);
+    }
+}
+
+/* ==========================================================================
+   RESPONSIVE - MÓVIL PEQUEÑO (hasta 380px)
+   ========================================================================== */
+@media (max-width: 380px) {
+    .sidebar {
+        padding: 12px 12px 6px 12px;
+    }
+
+    .content {
+        padding: 12px;
+    }
+
+    .glass {
+        padding: 16px;
+    }
+
+    .post-card {
+        padding: 14px;
+    }
 }
