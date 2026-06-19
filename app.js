@@ -19,8 +19,22 @@ function switchView(viewName) {
   const targetSection = document.getElementById(`view-${viewName}`);
   if (targetSection) targetSection.classList.add('active');
 
+  // --- ARREGLO DE SCROLL TOTAL PARA MÓVILES ---
+  window.scrollTo({ top: 0, behavior: 'instant' }); // Forza a la pantalla entera a subir al segundo
+  
   const contentContainer = document.querySelector('.content');
   if (contentContainer) contentContainer.scrollTop = 0;
+
+  // --- TRUCO DE OCULTACIÓN DEL HERO ---
+  const heroElement = document.querySelector('.hero');
+  if (heroElement) {
+    if (viewName === 'inicio') {
+      heroElement.style.display = 'grid'; 
+    } else {
+      heroElement.style.display = 'none'; 
+    }
+  }
+}
 
   // --- TRUCO DE OCULTACIÓN PARA MÓVILES ---
   const heroElement = document.querySelector('.hero');
