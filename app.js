@@ -1,63 +1,40 @@
 // ==========================================================================
-// PinarConnect - MOTOR SCRIPT (PARTE 1)
+// PinarConnect - MOTOR SCRIPT (CORREGIDO Y MEJORADO)
 // ==========================================================================
 
 document.addEventListener('DOMContentLoaded', () => {
-    
+
     // --- 1. SINCRONIZACIÓN Y NAVEGACIÓN DEL MENÚ LATERAL ---
     const navTabs = document.querySelectorAll('.nav-tab');
     const sections = document.querySelectorAll('.view');
     const inlineBtns = document.querySelectorAll('[data-switch-view]');
 
-function switchView(viewName) {
-  navTabs.forEach(tab => tab.classList.remove('active'));
-  sections.forEach(sec => sec.classList.remove('active'));
+    function switchView(viewName) {
+        navTabs.forEach(tab => tab.classList.remove('active'));
+        sections.forEach(sec => sec.classList.remove('active'));
 
-  const activeTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
-  if (activeTab) activeTab.classList.add('active');
+        const activeTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+        if (activeTab) activeTab.classList.add('active');
 
-  const targetSection = document.getElementById(`view-${viewName}`);
-  if (targetSection) targetSection.classList.add('active');
+        const targetSection = document.getElementById(`view-${viewName}`);
+        if (targetSection) targetSection.classList.add('active');
 
-  // --- ARREGLO DE SCROLL TOTAL PARA MÓVILES ---
-  window.scrollTo({ top: 0, behavior: 'instant' }); // Forza a la pantalla entera a subir al segundo
-  
-  const contentContainer = document.querySelector('.content');
-  if (contentContainer) contentContainer.scrollTop = 0;
+        // Scroll al inicio en móvil y escritorio
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        const contentContainer = document.querySelector('.content');
+        if (contentContainer) contentContainer.scrollTop = 0;
 
-  // --- TRUCO DE OCULTACIÓN DEL HERO ---
-  const heroElement = document.querySelector('.hero');
-  if (heroElement) {
-    if (viewName === 'inicio') {
-      heroElement.style.display = 'grid'; 
-    } else {
-      heroElement.style.display = 'none'; 
+        // Muestra/oculta el hero según la sección activa
+        const heroElement = document.querySelector('.hero');
+        if (heroElement) {
+            heroElement.style.display = (viewName === 'inicio') ? '' : 'none';
+        }
+
+        // En móvil, hace scroll para centrar el botón activo del menú
+        if (activeTab) {
+            activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
     }
-  }
-}
-
-  // --- TRUCO DE OCULTACIÓN PARA MÓVILES ---
-  const heroElement = document.querySelector('.hero');
-  if (heroElement) {
-    if (viewName === 'inicio') {
-      heroElement.style.display = 'grid'; 
-    } else {
-      heroElement.style.display = 'none'; 
-    }
-  }
-}
-
-    // --- AQUÍ VA NUESTRO TRUCO PARA MÓVILES ---
-    const heroElement = document.querySelector('.hero');
-    if (heroElement) {
-      if (viewName === 'inicio') {
-        heroElement.style.display = 'grid'; 
-      } else {
-        heroElement.style.display = 'none'; 
-      }
-    }
-  }
-
 
     navTabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -74,12 +51,19 @@ function switchView(viewName) {
 
     // --- 2. CONTROL DE VENTANAS EMERGENTES (MODALES) ---
     const openButtons = document.querySelectorAll('[data-open-modal]');
-    
+
     openButtons.forEach(button => {
         button.addEventListener('click', () => {
             const modalType = button.getAttribute('data-open-modal');
             const targetModal = document.getElementById(`${modalType}Modal`);
             if (targetModal) targetModal.showModal();
+        });
+    });
+
+    // Cerrar modales al hacer clic en el backdrop
+    document.querySelectorAll('dialog.modal').forEach(dialog => {
+        dialog.addEventListener('click', (e) => {
+            if (e.target === dialog) dialog.close();
         });
     });
 
@@ -114,10 +98,10 @@ function switchView(viewName) {
             nuevaTarjeta.className = 'post-card';
             nuevaTarjeta.setAttribute('data-tipo', tipo);
             nuevaTarjeta.setAttribute('data-buscar', `${titulo} ${detalle} ${zona}`.toLowerCase());
-            
+
             nuevaTarjeta.innerHTML = `
                 <div class="post-head">
-                    <div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <span class="badge ${tipo}">${tipo === 'ofrezco' ? 'Ofrezco ayuda' : 'Necesito ayuda'}</span>
                         <span class="badge zona">📍 ${zona}</span>
                     </div>
@@ -155,8 +139,8 @@ function switchView(viewName) {
     const favorBusquedaInput = document.getElementById('favorBusqueda');
 
     function ejecutarFiltroFavores() {
-        const tipoSeleccionado = favorTipoSelect.value;
-        const textoBusqueda = favorBusquedaInput.value.toLowerCase().trim();
+        const tipoSeleccionado = favorTipoSelect ? favorTipoSelect.value : 'todos';
+        const textoBusqueda = favorBusquedaInput ? favorBusquedaInput.value.toLowerCase().trim() : '';
         const tarjetas = favoresList ? favoresList.querySelectorAll('.post-card') : [];
 
         tarjetas.forEach(tarjeta => {
@@ -166,24 +150,20 @@ function switchView(viewName) {
             const coincideTipo = (tipoSeleccionado === 'todos' || tipoTarjeta === tipoSeleccionado);
             const coincideTexto = (textoBusqueda === '' || contenidoBusqueda.includes(textoBusqueda));
 
-            if (coincideTipo && coincideTexto) {
-                tarjeta.style.display = 'flex';
-            } else {
-                tarjeta.style.display = 'none';
-            }
+            tarjeta.style.display = (coincideTipo && coincideTexto) ? 'flex' : 'none';
         });
     }
 
     if (favorTipoSelect) favorTipoSelect.addEventListener('change', ejecutarFiltroFavores);
     if (favorBusquedaInput) favorBusquedaInput.addEventListener('input', ejecutarFiltroFavores);
-       // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
+
+
+    // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
     const profileForm = document.getElementById('profileForm');
-    
     const profileName = document.getElementById('profileName');
     const profileZone = document.getElementById('profileZone');
     const profileSkills = document.getElementById('profileSkills');
     const profileBio = document.getElementById('profileBio');
-
     const previewName = document.getElementById('previewName');
     const previewZone = document.getElementById('previewZone');
     const previewSkills = document.getElementById('previewSkills');
@@ -192,25 +172,26 @@ function switchView(viewName) {
 
     if (profileForm) {
         profileForm.addEventListener('submit', (e) => {
-            e.preventDefault(); 
+            e.preventDefault();
 
             const nombre = profileName.value.trim() || 'Vecino/a de El Pinar';
             const zona = profileZone.value.trim() || 'Comunidad cercana y activa';
             const habilidades = profileSkills.value.trim() || 'Aún no has indicado qué te gusta compartir.';
-            const biografia = profileBio.value.trim() || '“Aquí siempre cabe un gesto amable más.”';
+            const biografia = profileBio.value.trim() || 'Aquí siempre cabe un gesto amable más.';
 
-            previewName.textContent = nombre;
-            previewZone.textContent = `📍 ${zona}`;
-            previewSkills.textContent = habilidades;
-            previewBio.textContent = `“${biografia}”`;
+            if (previewName) previewName.textContent = nombre;
+            if (previewZone) previewZone.textContent = `📍 ${zona}`;
+            if (previewSkills) previewSkills.textContent = habilidades;
+            if (previewBio) previewBio.textContent = `"${biografia}"`;
 
-            if (nombre && nombre !== 'Vecino/a de El Pinar') {
+            if (profileAvatar && nombre && nombre !== 'Vecino/a de El Pinar') {
                 profileAvatar.textContent = nombre.charAt(0).toUpperCase();
             }
         });
     }
 
-    // --- 6. MOTORES ADICIONALES (MENTIDERO Y ALERTAS) ---
+
+    // --- 6. MOTOR DEL MENTIDERO DIGITAL ---
     const mentideroForm = document.getElementById('mentideroForm');
     const mentideroList = document.getElementById('mentideroList');
     const inicioMentidero = document.getElementById('inicioMentidero');
@@ -228,7 +209,9 @@ function switchView(viewName) {
             nuevaTarjeta.className = 'post-card';
             nuevaTarjeta.style.borderLeft = '4px solid var(--pinar-accent)';
             nuevaTarjeta.innerHTML = `
-                <div class="post-head"><span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${categoria}</span></div>
+                <div class="post-head">
+                    <span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${categoria}</span>
+                </div>
                 <h3 class="post-title" style="font-style: italic;">"${titulo}"</h3>
                 <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${texto}</p>
                 <div class="post-meta"><span>✍️ Vecino/a de El Pinar • Hace un momento</span></div>
@@ -242,6 +225,7 @@ function switchView(viewName) {
                 tarjetaMini.innerHTML = `<span style="font-size: 14px; color: var(--text-muted); font-style: italic;">"${titulo}"</span>`;
                 inicioMentidero.insertBefore(tarjetaMini, inicioMentidero.firstChild);
             }
+
             contadorMentidero++;
             if (mentideroCount) mentideroCount.textContent = contadorMentidero;
             mentideroForm.reset();
@@ -249,6 +233,8 @@ function switchView(viewName) {
         });
     }
 
+
+    // --- 7. MOTOR DE ALERTAS VECINALES ---
     const alertaForm = document.getElementById('alertaForm');
     const alertasList = document.getElementById('alertasList');
     const alertasCount = document.getElementById('alertasCount');
@@ -272,11 +258,11 @@ function switchView(viewName) {
             nuevaTarjeta.style.borderLeft = `4px solid ${colorAlerta}`;
             nuevaTarjeta.innerHTML = `
                 <div class="post-head">
-                    <div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
                         <span class="badge" style="background: ${colorAlerta}22; color: ${colorAlerta};">⚠️ Prioridad ${prioridad}</span>
                         <span class="badge zona">📍 ${zona}</span>
                     </div>
-                    <span style="font-size: 12px; font-weight: 700; color: #e0533c;">⏳ ${vigencia}</span>
+                    <span style="font-size: 12px; font-weight: 700; color: #e0533c; white-space:nowrap;">⏳ ${vigencia}</span>
                 </div>
                 <h3 class="post-title">${titulo}</h3>
                 <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${detalle}</p>
@@ -289,4 +275,5 @@ function switchView(viewName) {
             document.getElementById('alertaModal').close();
         });
     }
+
 });
