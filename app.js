@@ -9,18 +9,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const sections = document.querySelectorAll('.view');
     const inlineBtns = document.querySelectorAll('[data-switch-view]');
 
-      function switchView(viewName) {
-    navTabs.forEach(tab => tab.classList.remove('active'));
-    sections.forEach(sec => sec.classList.remove('active'));
+function switchView(viewName) {
+  navTabs.forEach(tab => tab.classList.remove('active'));
+  sections.forEach(sec => sec.classList.remove('active'));
 
-    const activeTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
-    if (activeTab) activeTab.classList.add('active');
+  const activeTab = document.querySelector(`.nav-tab[data-view="${viewName}"]`);
+  if (activeTab) activeTab.classList.add('active');
 
-    const targetSection = document.getElementById(`view-${viewName}`);
-    if (targetSection) targetSection.classList.add('active');
+  const targetSection = document.getElementById(`view-${viewName}`);
+  if (targetSection) targetSection.classList.add('active');
 
-    const contentContainer = document.querySelector('.content');
-    if (contentContainer) contentContainer.scrollTop = 0;
+  const contentContainer = document.querySelector('.content');
+  if (contentContainer) contentContainer.scrollTop = 0;
+
+  // --- TRUCO DE OCULTACIÓN PARA MÓVILES ---
+  const heroElement = document.querySelector('.hero');
+  if (heroElement) {
+    if (viewName === 'inicio') {
+      heroElement.style.display = 'grid'; 
+    } else {
+      heroElement.style.display = 'none'; 
+    }
+  }
+}
 
     // --- AQUÍ VA NUESTRO TRUCO PARA MÓVILES ---
     const heroElement = document.querySelector('.hero');
