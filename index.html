@@ -2,9 +2,11 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#1e6b5c" />
     <meta name="description" content="PinarConnect: Comunidad y Solidaridad Herreña" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>PinarConnect · Comunidad y Solidaridad Herreña</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,6 +19,8 @@
   </head>
   <body>
     <div class="app-shell">
+
+      <!-- ===================== BARRA LATERAL ===================== -->
       <aside class="sidebar">
         <div class="brand-card">
           <div class="brand-mark">🌿</div>
@@ -29,9 +33,9 @@
 
         <nav class="nav-tabs" aria-label="Navegación principal">
           <button class="nav-tab active" data-view="inicio">Inicio</button>
-          <button class="nav-tab" data-view="favores">Mercadillo de favores</button>
-          <button class="nav-tab" data-view="mentidero">El Mentidero Digital</button>
-          <button class="nav-tab" data-view="alertas">Alertas vecinales</button>
+          <button class="nav-tab" data-view="favores">Mercadillo</button>
+          <button class="nav-tab" data-view="mentidero">Mentidero</button>
+          <button class="nav-tab" data-view="alertas">Alertas</button>
           <button class="nav-tab" data-view="perfil">Mi perfil</button>
         </nav>
 
@@ -61,7 +65,10 @@
         </section>
       </aside>
 
+      <!-- ===================== CONTENIDO PRINCIPAL ===================== -->
       <main class="content">
+
+        <!-- HERO (visible solo en Inicio) -->
         <header class="hero glass">
           <div>
             <p class="eyebrow">Red social hiperlocal</p>
@@ -78,6 +85,7 @@
           </div>
         </header>
 
+        <!-- ===== VISTA: INICIO ===== -->
         <section class="view active" id="view-inicio">
           <div class="cards-3">
             <article class="feature-card glass accent-green">
@@ -115,6 +123,7 @@
           </div>
         </section>
 
+        <!-- ===== VISTA: MERCADILLO DE FAVORES ===== -->
         <section class="view" id="view-favores">
           <div class="section-head">
             <div>
@@ -142,6 +151,7 @@
           <div id="favoresList" class="feed-grid"></div>
         </section>
 
+        <!-- ===== VISTA: MENTIDERO DIGITAL ===== -->
         <section class="view" id="view-mentidero">
           <div class="section-head">
             <div>
@@ -167,6 +177,7 @@
           <div id="mentideroList" class="timeline"></div>
         </section>
 
+        <!-- ===== VISTA: ALERTAS VECINALES ===== -->
         <section class="view" id="view-alertas">
           <div class="section-head">
             <div>
@@ -202,6 +213,7 @@
           <div id="alertasList" class="alerts-grid"></div>
         </section>
 
+        <!-- ===== VISTA: MI PERFIL ===== -->
         <section class="view" id="view-perfil">
           <div class="section-head">
             <div>
@@ -240,19 +252,21 @@
                 <h4 id="previewName">Vecino/a de El Pinar</h4>
                 <p id="previewZone">Comunidad cercana y activa</p>
                 <p id="previewSkills">Aún no has indicado qué te gusta compartir.</p>
-                <blockquote id="previewBio">“Aquí siempre cabe un gesto amable más.”</blockquote>
+                <blockquote id="previewBio">"Aquí siempre cabe un gesto amable más."</blockquote>
               </div>
             </section>
           </div>
         </section>
+
       </main>
     </div>
 
+    <!-- ===================== MODAL: FAVOR ===================== -->
     <dialog id="favorModal" class="modal">
       <form method="dialog" class="modal-card" id="favorForm">
         <div class="modal-head">
           <h3>Publicar favor</h3>
-          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+          <button type="button" class="icon-btn" aria-label="Cerrar" onclick="document.getElementById('favorModal').close()">✕</button>
         </div>
         <div class="form-grid">
           <label>
@@ -280,17 +294,18 @@
           </label>
         </div>
         <menu>
-          <button value="cancel" class="secondary-btn">Cancelar</button>
-          <button value="default" class="primary-btn">Publicar</button>
+          <button type="button" class="secondary-btn" onclick="document.getElementById('favorModal').close()">Cancelar</button>
+          <button type="submit" class="primary-btn">Publicar</button>
         </menu>
       </form>
     </dialog>
 
+    <!-- ===================== MODAL: MENTIDERO ===================== -->
     <dialog id="mentideroModal" class="modal">
       <form method="dialog" class="modal-card" id="mentideroForm">
         <div class="modal-head">
           <h3>Compartir en el Mentidero</h3>
-          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+          <button type="button" class="icon-btn" aria-label="Cerrar" onclick="document.getElementById('mentideroModal').close()">✕</button>
         </div>
         <div class="form-grid">
           <label>
@@ -312,17 +327,18 @@
           </label>
         </div>
         <menu>
-          <button value="cancel" class="secondary-btn">Cancelar</button>
-          <button value="default" class="primary-btn">Publicar</button>
+          <button type="button" class="secondary-btn" onclick="document.getElementById('mentideroModal').close()">Cancelar</button>
+          <button type="submit" class="primary-btn">Publicar</button>
         </menu>
       </form>
     </dialog>
 
+    <!-- ===================== MODAL: ALERTA ===================== -->
     <dialog id="alertaModal" class="modal">
       <form method="dialog" class="modal-card" id="alertaForm">
         <div class="modal-head">
           <h3>Crear alerta vecinal</h3>
-          <button value="cancel" class="icon-btn" aria-label="Cerrar">✕</button>
+          <button type="button" class="icon-btn" aria-label="Cerrar" onclick="document.getElementById('alertaModal').close()">✕</button>
         </div>
         <div class="form-grid">
           <label>
@@ -351,8 +367,8 @@
           </label>
         </div>
         <menu>
-          <button value="cancel" class="secondary-btn">Cancelar</button>
-          <button value="default" class="primary-btn">Publicar</button>
+          <button type="button" class="secondary-btn" onclick="document.getElementById('alertaModal').close()">Cancelar</button>
+          <button type="submit" class="primary-btn">Publicar</button>
         </menu>
       </form>
     </dialog>
