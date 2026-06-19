@@ -548,13 +548,13 @@ dialog.modal {
   }
 
   /* La barra lateral ahora se adapta al ancho total arriba */
-  .sidebar {
-    width: 100% !important;
-    position: relative;
-    top: 0;
-    height: auto;
-    padding: 15px;
-  }
+.sidebar {
+  width: 100% !important;
+  position: relative !important;
+  top: 0 !important;
+  height: auto !important; /* El truco mágico: libera la altura para que respiren los botones */
+  padding: 15px !important;
+}
 
   /* Menú de navegación horizontal y deslizable con el dedo */
   .nav-tabs {
