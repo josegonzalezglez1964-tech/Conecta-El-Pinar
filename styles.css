@@ -535,3 +535,84 @@ dialog.modal {
 .form-grid.compact input, .form-grid.compact textarea {
     border: 1px solid rgba(0, 0, 0, 0.08);
 }
+/* ==========================================================================
+   ADAPTACIÓN PARA MÓVILES (PinarConnect)
+   ========================================================================== */
+@media (max-width: 850px) {
+  /* Convierte la estructura de dos columnas en una sola columna vertical */
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    gap: 15px;
+  }
+
+  /* La barra lateral ahora se adapta al ancho total arriba */
+  .sidebar {
+    width: 100% !important;
+    position: relative;
+    top: 0;
+    height: auto;
+    padding: 15px;
+  }
+
+  /* Los botones de navegación se ponen en horizontal con scroll si no caben */
+  .nav-tabs {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 8px;
+    padding-bottom: 5px;
+  }
+  
+  .nav-tab {
+    flex: 0 0 auto; /* Evita que los botones se encojan */
+    padding: 8px 15px;
+  }
+
+  /* Oculta las tarjetas secundarias de la sidebar en móvil para ahorrar espacio */
+  .status-card, .quote-card {
+    display: none; 
+  }
+
+  /* El contenido principal toma todo el espacio */
+  .content {
+    width: 100% !important;
+    padding: 0;
+  }
+
+  /* El Hero (encabezado principal) adapta sus botones */
+  .hero {
+    padding: 20px;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+  }
+
+  .hero-actions button, .primary-btn, .secondary-btn {
+    width: 100%; /* Botones grandes y fáciles de pulsar con el dedo */
+    justify-content: center;
+  }
+
+  /* Las rejillas de 3 tarjetas o paneles pasan a ser de 1 sola columna */
+  .cards-3, .dashboard-grid, .toolbar, .profile-grid, .feed-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+  }
+  
+  /* Ajusta los selectores y buscadores de las barras de herramientas */
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-group input, .filter-group select {
+    width: 100%;
+  }
+}
