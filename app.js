@@ -1,3 +1,21 @@
+// CONFIGURACIÓN DE FIREBASE PARA PINARCONNECT
+// (Estas claves las rellenaremos en el futuro desde la consola de Firebase)
+const firebaseConfig = {
+    apiKey: "TU_API_KEY_AQUÍ",
+    authDomain: "://firebaseapp.com",
+    databaseURL: "https://firebaseio.com",
+    projectId: "pinarconnect",
+    storageBucket: "://appspot.com",
+    messagingSenderId: "TU_SENDER_ID",
+    appId: "TU_APP_ID"
+};
+
+// Inicializamos Firebase en la aplicación
+firebase.initializeApp(firebaseConfig);
+
+// Creamos la variable global de la base de datos en tiempo real
+const baseDatos = firebase.database();
+
 // ==========================================================================
 // PinarConnect - MOTOR SCRIPT (CORREGIDO Y MEJORADO)
 // ==========================================================================
