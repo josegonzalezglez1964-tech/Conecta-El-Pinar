@@ -38,16 +38,16 @@ body {
 }
 
 /* ==========================================================================
-   Estructura Principal (Desktop)
-   ========================================================================== */
+    Estructura Principal (Desktop)
+    ========================================================================== */
 .app-shell {
     display: flex;
     min-height: 100vh;
 }
 
 /* ==========================================================================
-   Barra Lateral (Sidebar) - Desktop
-   ========================================================================== */
+    Barra Lateral (Sidebar) - Desktop
+    ========================================================================== */
 .sidebar {
     width: var(--sidebar-width);
     min-width: var(--sidebar-width);
@@ -93,7 +93,7 @@ body {
 }
 
 .sidebar .muted {
-    color: #a3b8b0;
+    color: #b8ccc4;
     font-size: 13px;
     margin: 4px 0 0 0;
 }
@@ -110,7 +110,7 @@ body {
     padding: 12px 16px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    color: #a3b8b0;
+    color: #d0dcd6;
     text-align: left;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -131,8 +131,8 @@ body {
 /* Tarjetas de estado y cita del sidebar */
 .status-card,
 .quote-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 16px;
 }
@@ -141,7 +141,7 @@ body {
     margin: 0 0 12px 0;
     font-size: 14px;
     font-weight: 700;
-    color: #a3b8b0;
+    color: #cfa03f;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -161,17 +161,17 @@ body {
 .status-number {
     font-size: 28px;
     font-weight: 800;
-    color: var(--pinar-accent);
+    color: #ffd966;
     line-height: 1;
 }
 
 .status-label {
     font-size: 13px;
-    color: #a3b8b0;
+    color: #d0dcd6;
 }
 
 .quote-card .eyebrow {
-    color: var(--pinar-accent);
+    color: #cfa03f;
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 700;
@@ -183,14 +183,14 @@ body {
 .quote-card blockquote {
     margin: 0;
     font-size: 13px;
-    color: #c0d0ca;
+    color: #e8f1ed;
     font-style: italic;
     line-height: 1.6;
 }
 
 /* ==========================================================================
-   Área de Contenido Principal
-   ========================================================================== */
+    Área de Contenido Principal
+    ========================================================================== */
 .content {
     flex: 1;
     padding: 32px;
@@ -202,8 +202,8 @@ body {
 }
 
 /* ==========================================================================
-   Efecto Cristal (Glassmorphism)
-   ========================================================================== */
+    Efecto Cristal (Glassmorphism)
+    ========================================================================== */
 .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(12px);
@@ -221,8 +221,8 @@ body {
 }
 
 /* ==========================================================================
-   Botones
-   ========================================================================== */
+    Botones
+    ========================================================================== */
 button.primary-btn {
     background-color: var(--pinar-green);
     color: #ffffff;
@@ -304,8 +304,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Hero
-   ========================================================================== */
+    Hero
+    ========================================================================== */
 .hero {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -346,8 +346,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Vistas (Secciones)
-   ========================================================================== */
+    Vistas (Secciones)
+    ========================================================================== */
 .view {
     display: none !important;
 }
@@ -381,8 +381,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Rejillas de Inicio
-   ========================================================================== */
+    Rejillas de Inicio
+    ========================================================================== */
 .cards-3 {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -421,8 +421,8 @@ button.secondary-btn:hover {
 .accent-coral { border-top: 4px solid #d46a55 !important; }
 
 /* ==========================================================================
-   Paneles
-   ========================================================================== */
+    Paneles
+    ========================================================================== */
 .panel {
     display: flex;
     flex-direction: column;
@@ -450,8 +450,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Barra de herramientas y filtros
-   ========================================================================== */
+    Barra de herramientas y filtros
+    ========================================================================== */
 .toolbar {
     display: flex;
     gap: 16px;
@@ -501,8 +501,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Tarjetas de Feed (Favores, Alertas, Mentidero)
-   ========================================================================== */
+    Tarjetas de Feed (Favores, Alertas, Mentidero)
+    ========================================================================== */
 .feed-grid,
 .alerts-grid,
 .timeline {
@@ -567,8 +567,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Perfil Vecinal
-   ========================================================================== */
+    Perfil Vecinal
+    ========================================================================== */
 .profile-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -621,8 +621,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Formularios
-   ========================================================================== */
+    Formularios
+    ========================================================================== */
 .form-grid {
     display: flex;
     flex-direction: column;
@@ -670,8 +670,8 @@ button.secondary-btn:hover {
 }
 
 /* ==========================================================================
-   Modales / Diálogos
-   ========================================================================== */
+    Modales / Diálogos
+    ========================================================================== */
 dialog.modal {
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
@@ -733,8 +733,8 @@ menu {
 }
 
 /* ==========================================================================
-   Textos de apoyo
-   ========================================================================== */
+    Textos de apoyo
+    ========================================================================== */
 .eyebrow {
     text-transform: uppercase;
     font-size: 11px;
@@ -748,8 +748,8 @@ h2, h3, h4 {
 }
 
 /* ==========================================================================
-   RESPONSIVE - TABLET (hasta 1024px)
-   ========================================================================== */
+    RESPONSIVE - TABLET (hasta 1024px)
+    ========================================================================== */
 @media (max-width: 1024px) {
     .cards-3 {
         grid-template-columns: repeat(2, 1fr);
@@ -771,8 +771,8 @@ h2, h3, h4 {
 }
 
 /* ==========================================================================
-   RESPONSIVE - MÓVIL (hasta 768px)
-   ========================================================================== */
+    RESPONSIVE - MÓVIL (hasta 768px)
+    ========================================================================== */
 @media (max-width: 768px) {
 
     /* La estructura principal pasa a columna */
@@ -971,8 +971,8 @@ h2, h3, h4 {
 }
 
 /* ==========================================================================
-   RESPONSIVE - MÓVIL PEQUEÑO (hasta 380px)
-   ========================================================================== */
+    RESPONSIVE - MÓVIL PEQUEÑO (hasta 380px)
+    ========================================================================== */
 @media (max-width: 380px) {
     .sidebar {
         padding: 12px 12px 6px 12px;
