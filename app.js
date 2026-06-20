@@ -1,13 +1,14 @@
 // CONFIGURACIÓN DE FIREBASE PARA PINARCONNECT
 // (Estas claves las rellenaremos en el futuro desde la consola de Firebase)
 const firebaseConfig = {
-    apiKey: "TU_API_KEY_AQUÍ",
+    apiKey: "AIzaSyCqvz3vJOnFsYbxsONUl48YaxGC7raRSg",
     authDomain: "://firebaseapp.com",
     databaseURL: "https://firebaseio.com",
     projectId: "pinarconnect",
-    storageBucket: "://appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
+    storageBucket: "pinarconnect.firebasestorage.app",
+    messagingSenderId: "1071169307553",
+    appId: "1:1071169307553:web:e6b17058e171fd67d941e0",
+    measurementId: "G-9T7QJZP6DW"
 };
 
 // Inicializamos Firebase en la aplicación
@@ -331,6 +332,8 @@ function alEnviarMensaje() {
 
     if (validarMensajeMentidero(mensajeVecino)) {
         console.log("✅ Mensaje aprobado. Guardando en la tabla 'mentidero'...");
+        guardarMensajeEnFirebase(mensajeVecino);
+
         // Aquí iría el código para meterlo en la base de datos
     } else {
         console.warn("❌ Publicación bloqueada por el filtro de moderación.");
@@ -428,3 +431,35 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+/**
+ * Guarda un mensaje limpio directamente en la nube de Firebase
+ * @param {string} mensajeTexto - El texto que escribió el vecino
+ */
+function guardarMensajeEnFirebase(mensajeTexto) {
+    // 1. Apuntamos a la colección 'mentidero' en tu nube
+    const refMentidero = baseDatos.ref('mentidero');
+    
+    // 2. Creamos el objeto estructurado con los datos
+    const nuevoMensaje = {
+        usuario_id: 1, // Usuario de prueba
+        contenido: mensajeTexto,
+        fecha_publicacion: new Date().toISOString(),
+        estado_moderacion: 'APROBADO',
+        contador_reportes: 0
+    };
+    
+    // 3. Enviamos los datos a internet de forma permanente
+    refMentidero.push(nuevoMensaje)
+        .then(() => {
+            console.log("¡Éxito! Guardado en Firebase.");
+            alert("✅ ¡Tu pensamiento ha sido publicado en el Mentidero Digital!");
+            
+            // Limpiamos el cuadro de texto de la interfaz
+            const cuadroTexto = document.querySelector("#texto-mentidero");
+            if (cuadroTexto) cuadroTexto.value = "";
+        })
+        .catch((error) => {
+            console.error("Error al guardar en Firebase: ", error);
+            alert("Hubo un problema al conectar con la red de El Pinar.");
+        });
+}
