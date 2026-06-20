@@ -10,6 +10,12 @@
     --pinar-dark: #1b2622;
     --pinar-accent: #cfa03f;
 
+    /* Premium Accesible Palette */
+    --midnight-blue: #0F1E36;
+    --old-gold: #C68B13;
+    --burnt-amber: #D95D00;
+    --pine-dark: #144534;
+
     --glass-bg: rgba(255, 255, 255, 0.75);
     --glass-border: rgba(255, 255, 255, 0.6);
     --glass-shadow: rgba(27, 38, 34, 0.03);
@@ -84,7 +90,7 @@ body {
 }
 
 .sidebar .eyebrow {
-    color: var(--pinar-accent);
+    color: var(--old-gold);
     text-transform: uppercase;
     font-size: 11px;
     font-weight: 700;
@@ -93,9 +99,10 @@ body {
 }
 
 .sidebar .muted {
-    color: #b8ccc4;
+    color: var(--midnight-blue);
     font-size: 13px;
     margin: 4px 0 0 0;
+    opacity: 0.85;
 }
 
 /* Navegación del Menú Lateral */
@@ -110,7 +117,7 @@ body {
     padding: 12px 16px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    color: #d0dcd6;
+    color: var(--midnight-blue);
     text-align: left;
     font-family: 'Inter', sans-serif;
     font-size: 14px;
@@ -119,6 +126,7 @@ body {
     border-radius: 8px;
     transition: all 0.25s ease;
     white-space: nowrap;
+    opacity: 0.9;
 }
 
 .nav-tab:hover,
@@ -126,24 +134,25 @@ body {
     background-color: var(--pinar-green);
     color: #ffffff;
     border-color: rgba(255, 255, 255, 0.1);
+    opacity: 1;
 }
 
 /* Tarjetas de estado y cita del sidebar */
 .status-card,
 .quote-card {
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.14);
     border-radius: 12px;
     padding: 16px;
 }
 
 .status-card h2 {
     margin: 0 0 12px 0;
-    font-size: 14px;
-    font-weight: 700;
-    color: #cfa03f;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--old-gold);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1.2px;
 }
 
 .status-grid {
@@ -159,23 +168,25 @@ body {
 }
 
 .status-number {
-    font-size: 28px;
-    font-weight: 800;
-    color: #ffd966;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--burnt-amber);
     line-height: 1;
 }
 
 .status-label {
-    font-size: 13px;
-    color: #d0dcd6;
+    font-size: 12px;
+    color: var(--midnight-blue);
+    font-weight: 500;
+    opacity: 0.95;
 }
 
 .quote-card .eyebrow {
-    color: #cfa03f;
+    color: var(--old-gold);
     text-transform: uppercase;
     font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 1px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
     margin: 0 0 8px 0;
     display: block;
 }
@@ -183,9 +194,10 @@ body {
 .quote-card blockquote {
     margin: 0;
     font-size: 13px;
-    color: #e8f1ed;
+    color: var(--midnight-blue);
     font-style: italic;
     line-height: 1.6;
+    font-weight: 500;
 }
 
 /* ==========================================================================
