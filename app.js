@@ -380,3 +380,33 @@ function simularAlertaAdministrador(zonaAfectada, tipoIncidencia, detalle) {
 
 // Ejemplo de cómo se ejecutaría cuando lances una alerta:
 // simularAlertaAdministrador("La Restinga", "Carretera Cortada", "Desprendimiento de rocas en los accesos. Circule con precaución.");
+// CONEXIÓN DEL FORMULARIO DEL MENTIDERO REAL
+// Esperamos a que la página cargue por completo
+document.addEventListener("DOMContentLoaded", () => {
+    // Buscamos el botón de escribir o el formulario del mentidero
+    // (Ajusta el nombre si tu botón o formulario tiene otro ID o clase)
+    const botonEscribir = document.querySelector(".btn-escribir") || document.querySelector("#form-mentidero");
+
+    if (botonEscribir) {
+        botonEscribir.addEventListener("submit", (evento) => {
+            // Evitamos que la página se recargue sola
+            evento.preventDefault();
+
+            // Aquí capturamos lo que el usuario escribió en el cuadro de texto
+            const cuadroTexto = document.querySelector("#texto-mentidero");
+            if (!cuadroTexto) return;
+
+            const mensajeDelVecino = cuadroTexto.value;
+
+            // Pasamos el mensaje por el filtro que creamos antes
+            if (validarMensajeMentidero(mensajeDelVecino)) {
+                console.log("✅ Mensaje limpio. Publicando...");
+                // Aquí irá el código para mostrarlo en la pantalla
+            } else {
+                // ¡Aquí es donde salta la alerta mágica!
+                alert("⚠️ Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.");
+                cuadroTexto.style.border = "2px solid red"; // Pone el borde rojo como aviso visual
+            }
+        });
+    }
+});
