@@ -1,9 +1,14 @@
-// CONFIGURACIÓN DE FIREBASE PARA PINARCONNECT
-// (Estas claves las rellenaremos en el futuro desde la consola de Firebase)
+// ==========================================================================
+// PINARCONNECT - CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
+// ==========================================================================
 const firebaseConfig = {
     apiKey: "AIzaSyCqvz3vJOnFsYbxsONUl48YaxGC7raRSg",
-    authDomain: "://firebaseapp.com",
-    databaseURL: "https://firebaseio.com",
+    authDomain: "pinarconnect.firebaseapp.com",
+    // ⚠️ REEMPLAZA ESTA LÍNEA por tu databaseURL real.
+    // La encuentras en: Consola de Firebase > Realtime Database > arriba del todo
+    // (algo como "https://pinarconnect-default-rtdb.europe-west1.firebasedatabase.app"
+    // o "https://pinarconnect-default-rtdb.firebaseio.com" según la región que elegiste).
+    databaseURL: "https://pinarconnect-default-rtdb.firebaseio.com", // <-- REEMPLAZA ESTO
     projectId: "pinarconnect",
     storageBucket: "pinarconnect.firebasestorage.app",
     messagingSenderId: "1071169307553",
@@ -11,19 +16,63 @@ const firebaseConfig = {
     measurementId: "G-9T7QJZP6DW"
 };
 
-// Inicializamos Firebase en la aplicación
 firebase.initializeApp(firebaseConfig);
-
-// Creamos la variable global de la base de datos en tiempo real
 const baseDatos = firebase.database();
 
-// ==========================================================================
-// PinarConnect - MOTOR SCRIPT (CORREGIDO Y MEJORADO)
-// ==========================================================================
+// Evita que el texto escrito por un vecino pueda romper el HTML de la página
+function escapeHTML(texto) {
+    const div = document.createElement('div');
+    div.textContent = texto == null ? '' : texto;
+    return div.innerHTML;
+}
 
+function formatearFecha(iso) {
+    try {
+        return new Date(iso).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    } catch {
+        return 'Hace un momento';
+    }
+}
+
+// ==========================================================================
+// FILTRO DE MODERACIÓN DEL MENTIDERO
+// ==========================================================================
+const PALABRAS_PROHIBIDAS = ["insulto1", "insulto2", "ofensa3", "mierda", "tonto", "bobo"];
+
+function validarMensajeMentidero(texto) {
+    const textoMinuscula = (texto || '').toLowerCase();
+    return !PALABRAS_PROHIBIDAS.some(palabra => textoMinuscula.includes(palabra));
+}
+
+// ==========================================================================
+// NOTIFICACIONES LOCALES (opcional, no se activan automáticamente)
+// ==========================================================================
+function solicitarPermisoNotificaciones() {
+    if (!("Notification" in window)) {
+        console.error("Este navegador no soporta alertas de escritorio.");
+        return;
+    }
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then((permiso) => {
+            if (permiso === "granted") {
+                enviarNotificacionLocal("PinarConnect", "¡Perfecto! Te avisaremos aquí cuando ocurra una alerta en el municipio.");
+            }
+        });
+    }
+}
+
+function enviarNotificacionLocal(titulo, mensaje) {
+    if (Notification.permission === "granted") {
+        new Notification(titulo, { body: mensaje });
+    }
+}
+
+// ==========================================================================
+// MOTOR PRINCIPAL DE LA APP
+// ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 1. SINCRONIZACIÓN Y NAVEGACIÓN DEL MENÚ LATERAL ---
+    // --- 1. NAVEGACIÓN ENTRE VISTAS ---
     const navTabs = document.querySelectorAll('.nav-tab');
     const sections = document.querySelectorAll('.view');
     const inlineBtns = document.querySelectorAll('[data-switch-view]');
@@ -38,40 +87,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const targetSection = document.getElementById(`view-${viewName}`);
         if (targetSection) targetSection.classList.add('active');
 
-        // Scroll al inicio en móvil y escritorio
         window.scrollTo({ top: 0, behavior: 'instant' });
         const contentContainer = document.querySelector('.content');
         if (contentContainer) contentContainer.scrollTop = 0;
 
-        // Muestra/oculta el hero según la sección activa
         const heroElement = document.querySelector('.hero');
-        if (heroElement) {
-            heroElement.style.display = (viewName === 'inicio') ? '' : 'none';
-        }
+        if (heroElement) heroElement.style.display = (viewName === 'inicio') ? '' : 'none';
 
-        // En móvil, hace scroll para centrar el botón activo del menú
-        if (activeTab) {
-            activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-        }
+        if (activeTab) activeTab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
-    navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            switchView(tab.getAttribute('data-view'));
-        });
-    });
-
-    inlineBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            switchView(btn.getAttribute('data-switch-view'));
-        });
-    });
+    navTabs.forEach(tab => tab.addEventListener('click', () => switchView(tab.getAttribute('data-view'))));
+    inlineBtns.forEach(btn => btn.addEventListener('click', () => switchView(btn.getAttribute('data-switch-view'))));
 
 
-    // --- 2. CONTROL DE VENTANAS EMERGENTES (MODALES) ---
-    const openButtons = document.querySelectorAll('[data-open-modal]');
-
-    openButtons.forEach(button => {
+    // --- 2. CONTROL DE MODALES ---
+    document.querySelectorAll('[data-open-modal]').forEach(button => {
         button.addEventListener('click', () => {
             const modalType = button.getAttribute('data-open-modal');
             const targetModal = document.getElementById(`${modalType}Modal`);
@@ -79,15 +110,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Cerrar modales al hacer clic en el backdrop
     document.querySelectorAll('dialog.modal').forEach(dialog => {
-        dialog.addEventListener('click', (e) => {
-            if (e.target === dialog) dialog.close();
-        });
+        dialog.addEventListener('click', (e) => { if (e.target === dialog) dialog.close(); });
     });
 
-    const closeButtons = document.querySelectorAll('dialog.modal button[value="cancel"], dialog.modal .secondary-btn');
-    closeButtons.forEach(button => {
+    document.querySelectorAll('dialog.modal button[value="cancel"], dialog.modal .secondary-btn').forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
             const modal = button.closest('dialog.modal');
@@ -96,66 +123,56 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 3. MOTOR DE PUBLICACIÓN - MERCADILLO DE FAVORES ---
+    // --- 3. MERCADILLO DE FAVORES (conectado a Firebase) ---
     const favorForm = document.getElementById('favorForm');
     const favoresList = document.getElementById('favoresList');
     const inicioFavores = document.getElementById('inicioFavores');
     const favoresCount = document.getElementById('favoresCount');
-    let contadorFavores = 0;
-
-    if (favorForm) {
-        favorForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const tipo = document.getElementById('nuevoFavorTipo').value;
-            const titulo = document.getElementById('nuevoFavorTitulo').value;
-            const zona = document.getElementById('nuevoFavorZona').value;
-            const tags = document.getElementById('nuevoFavorTags').value;
-            const detalle = document.getElementById('nuevoFavorDetalle').value;
-
-            const nuevaTarjeta = document.createElement('article');
-            nuevaTarjeta.className = 'post-card';
-            nuevaTarjeta.setAttribute('data-tipo', tipo);
-            nuevaTarjeta.setAttribute('data-buscar', `${titulo} ${detalle} ${zona}`.toLowerCase());
-
-            nuevaTarjeta.innerHTML = `
-                <div class="post-head">
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <span class="badge ${tipo}">${tipo === 'ofrezco' ? 'Ofrezco ayuda' : 'Necesito ayuda'}</span>
-                        <span class="badge zona">📍 ${zona}</span>
-                    </div>
-                </div>
-                <h3 class="post-title">${titulo}</h3>
-                <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${detalle}</p>
-                <div class="post-meta">
-                    <span>🏷️ ${tags ? tags : 'comunidad'}</span>
-                    <span>• Hace un momento</span>
-                </div>
-            `;
-
-            if (favoresList) favoresList.insertBefore(nuevaTarjeta, favoresList.firstChild);
-
-            if (inicioFavores) {
-                const tarjetaMini = document.createElement('div');
-                tarjetaMini.style.padding = '12px';
-                tarjetaMini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
-                tarjetaMini.innerHTML = `<strong style="color: var(--pinar-green); font-size: 14px;">[${zona}]</strong> <span style="font-size: 14px; color: var(--text-main); font-weight: 500;">${titulo}</span>`;
-                inicioFavores.insertBefore(tarjetaMini, inicioFavores.firstChild);
-            }
-
-            contadorFavores++;
-            if (favoresCount) favoresCount.textContent = contadorFavores;
-
-            favorForm.reset();
-            document.getElementById('favorModal').close();
-            ejecutarFiltroFavores();
-        });
-    }
-
-
-    // --- 4. SISTEMA DE FILTRADO REAL (MERCADILLO DE FAVORES) ---
     const favorTipoSelect = document.getElementById('favorTipo');
     const favorBusquedaInput = document.getElementById('favorBusqueda');
+
+    function crearTarjetaFavor(favor) {
+        const tarjeta = document.createElement('article');
+        tarjeta.className = 'post-card';
+        tarjeta.setAttribute('data-tipo', favor.tipo);
+        tarjeta.setAttribute('data-buscar', `${favor.titulo} ${favor.detalle} ${favor.zona}`.toLowerCase());
+        tarjeta.innerHTML = `
+            <div class="post-head">
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span class="badge ${favor.tipo}">${favor.tipo === 'ofrezco' ? 'Ofrezco ayuda' : 'Necesito ayuda'}</span>
+                    <span class="badge zona">📍 ${escapeHTML(favor.zona)}</span>
+                </div>
+            </div>
+            <h3 class="post-title">${escapeHTML(favor.titulo)}</h3>
+            <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${escapeHTML(favor.detalle)}</p>
+            <div class="post-meta">
+                <span>🏷️ ${escapeHTML(favor.tags || 'comunidad')}</span>
+                <span>• ${formatearFecha(favor.fecha_creacion)}</span>
+            </div>
+        `;
+        return tarjeta;
+    }
+
+    function renderFavores(snapshotVal) {
+        if (!favoresList) return;
+        favoresList.innerHTML = '';
+        if (inicioFavores) inicioFavores.innerHTML = '';
+
+        const entradas = snapshotVal ? Object.values(snapshotVal).reverse() : [];
+        if (favoresCount) favoresCount.textContent = entradas.length;
+
+        entradas.forEach(favor => {
+            favoresList.appendChild(crearTarjetaFavor(favor));
+            if (inicioFavores && inicioFavores.children.length < 5) {
+                const mini = document.createElement('div');
+                mini.style.padding = '12px';
+                mini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+                mini.innerHTML = `<strong style="color: var(--pinar-green); font-size: 14px;">[${escapeHTML(favor.zona)}]</strong> <span style="font-size: 14px; color: var(--text-main); font-weight: 500;">${escapeHTML(favor.titulo)}</span>`;
+                inicioFavores.appendChild(mini);
+            }
+        });
+        ejecutarFiltroFavores();
+    }
 
     function ejecutarFiltroFavores() {
         const tipoSeleccionado = favorTipoSelect ? favorTipoSelect.value : 'todos';
@@ -163,12 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const tarjetas = favoresList ? favoresList.querySelectorAll('.post-card') : [];
 
         tarjetas.forEach(tarjeta => {
-            const tipoTarjeta = tarjeta.getAttribute('data-tipo');
-            const contenidoBusqueda = tarjeta.getAttribute('data-buscar');
-
-            const coincideTipo = (tipoSeleccionado === 'todos' || tipoTarjeta === tipoSeleccionado);
-            const coincideTexto = (textoBusqueda === '' || contenidoBusqueda.includes(textoBusqueda));
-
+            const coincideTipo = (tipoSeleccionado === 'todos' || tarjeta.getAttribute('data-tipo') === tipoSeleccionado);
+            const coincideTexto = (textoBusqueda === '' || tarjeta.getAttribute('data-buscar').includes(textoBusqueda));
             tarjeta.style.display = (coincideTipo && coincideTexto) ? 'flex' : 'none';
         });
     }
@@ -176,8 +189,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (favorTipoSelect) favorTipoSelect.addEventListener('change', ejecutarFiltroFavores);
     if (favorBusquedaInput) favorBusquedaInput.addEventListener('input', ejecutarFiltroFavores);
 
+    // Escucha en tiempo real los favores guardados en Firebase
+    baseDatos.ref('favores').on('value', (snapshot) => renderFavores(snapshot.val()));
 
-    // --- 5. MOTOR DE EDICIÓN Y VISTA PREVIA - MI PERFIL ---
+    if (favorForm) {
+        favorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nuevoFavor = {
+                tipo: document.getElementById('nuevoFavorTipo').value,
+                titulo: document.getElementById('nuevoFavorTitulo').value,
+                zona: document.getElementById('nuevoFavorZona').value,
+                tags: document.getElementById('nuevoFavorTags').value,
+                detalle: document.getElementById('nuevoFavorDetalle').value,
+                fecha_creacion: new Date().toISOString(),
+                estado: 'ACTIVO'
+            };
+            baseDatos.ref('favores').push(nuevoFavor)
+                .then(() => {
+                    favorForm.reset();
+                    document.getElementById('favorModal').close();
+                })
+                .catch((error) => {
+                    console.error('Error al guardar favor en Firebase:', error);
+                    alert('No se pudo publicar el favor. Revisa tu conexión e inténtalo de nuevo.');
+                });
+        });
+    }
+
+
+    // --- 4. MI PERFIL (local, no requiere base de datos) ---
     const profileForm = document.getElementById('profileForm');
     const profileName = document.getElementById('profileName');
     const profileZone = document.getElementById('profileZone');
@@ -192,7 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (profileForm) {
         profileForm.addEventListener('submit', (e) => {
             e.preventDefault();
-
             const nombre = profileName.value.trim() || 'Vecino/a de El Pinar';
             const zona = profileZone.value.trim() || 'Comunidad cercana y activa';
             const habilidades = profileSkills.value.trim() || 'Aún no has indicado qué te gusta compartir.';
@@ -202,20 +241,71 @@ document.addEventListener('DOMContentLoaded', () => {
             if (previewZone) previewZone.textContent = `📍 ${zona}`;
             if (previewSkills) previewSkills.textContent = habilidades;
             if (previewBio) previewBio.textContent = `"${biografia}"`;
-
-            if (profileAvatar && nombre && nombre !== 'Vecino/a de El Pinar') {
+            if (profileAvatar && nombre !== 'Vecino/a de El Pinar') {
                 profileAvatar.textContent = nombre.charAt(0).toUpperCase();
             }
         });
     }
 
 
-    // --- 6. MOTOR DEL MENTIDERO DIGITAL ---
+    // --- 5. EL MENTIDERO DIGITAL (conectado a Firebase + moderación) ---
     const mentideroForm = document.getElementById('mentideroForm');
     const mentideroList = document.getElementById('mentideroList');
     const inicioMentidero = document.getElementById('inicioMentidero');
     const mentideroCount = document.getElementById('mentideroCount');
-    let contadorMentidero = 0;
+    const mentideroFiltro = document.getElementById('mentideroFiltro');
+
+    function crearTarjetaMentidero(msg) {
+        const tarjeta = document.createElement('article');
+        tarjeta.className = 'post-card';
+        tarjeta.setAttribute('data-categoria', msg.categoria || 'mensaje');
+        tarjeta.style.borderLeft = '4px solid var(--pinar-accent)';
+        tarjeta.innerHTML = `
+            <div class="post-head">
+                <span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${escapeHTML(msg.categoria || 'mensaje')}</span>
+            </div>
+            <h3 class="post-title" style="font-style: italic;">"${escapeHTML(msg.titulo)}"</h3>
+            <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${escapeHTML(msg.contenido)}</p>
+            <div class="post-meta"><span>✍️ Vecino/a de El Pinar • ${formatearFecha(msg.fecha_publicacion)}</span></div>
+        `;
+        return tarjeta;
+    }
+
+    function ejecutarFiltroMentidero() {
+        const categoria = mentideroFiltro ? mentideroFiltro.value : 'todos';
+        const tarjetas = mentideroList ? mentideroList.querySelectorAll('.post-card') : [];
+        tarjetas.forEach(tarjeta => {
+            const ok = (categoria === 'todos' || tarjeta.getAttribute('data-categoria') === categoria);
+            tarjeta.style.display = ok ? 'flex' : 'none';
+        });
+    }
+
+    function renderMentidero(snapshotVal) {
+        if (!mentideroList) return;
+        mentideroList.innerHTML = '';
+        if (inicioMentidero) inicioMentidero.innerHTML = '';
+
+        const entradas = snapshotVal
+            ? Object.values(snapshotVal).filter(msg => msg.estado_moderacion !== 'BLOQUEADO').reverse()
+            : [];
+        if (mentideroCount) mentideroCount.textContent = entradas.length;
+
+        entradas.forEach(msg => {
+            mentideroList.appendChild(crearTarjetaMentidero(msg));
+            if (inicioMentidero && inicioMentidero.children.length < 5) {
+                const mini = document.createElement('div');
+                mini.style.padding = '12px';
+                mini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
+                mini.innerHTML = `<span style="font-size: 14px; color: var(--text-muted); font-style: italic;">"${escapeHTML(msg.titulo)}"</span>`;
+                inicioMentidero.appendChild(mini);
+            }
+        });
+        ejecutarFiltroMentidero();
+    }
+
+    if (mentideroFiltro) mentideroFiltro.addEventListener('change', ejecutarFiltroMentidero);
+
+    baseDatos.ref('mentidero').on('value', (snapshot) => renderMentidero(snapshot.val()));
 
     if (mentideroForm) {
         mentideroForm.addEventListener('submit', (e) => {
@@ -224,242 +314,111 @@ document.addEventListener('DOMContentLoaded', () => {
             const titulo = document.getElementById('nuevoMentideroTitulo').value;
             const texto = document.getElementById('nuevoMentideroTexto').value;
 
-            const nuevaTarjeta = document.createElement('article');
-            nuevaTarjeta.className = 'post-card';
-            nuevaTarjeta.style.borderLeft = '4px solid var(--pinar-accent)';
-            nuevaTarjeta.innerHTML = `
-                <div class="post-head">
-                    <span class="badge" style="background: rgba(207,160,63,0.1); color: var(--pinar-accent);">${categoria}</span>
-                </div>
-                <h3 class="post-title" style="font-style: italic;">"${titulo}"</h3>
-                <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${texto}</p>
-                <div class="post-meta"><span>✍️ Vecino/a de El Pinar • Hace un momento</span></div>
-            `;
-            if (mentideroList) mentideroList.insertBefore(nuevaTarjeta, mentideroList.firstChild);
-
-            if (inicioMentidero) {
-                const tarjetaMini = document.createElement('div');
-                tarjetaMini.style.padding = '12px';
-                tarjetaMini.style.borderBottom = '1px solid rgba(0,0,0,0.05)';
-                tarjetaMini.innerHTML = `<span style="font-size: 14px; color: var(--text-muted); font-style: italic;">"${titulo}"</span>`;
-                inicioMentidero.insertBefore(tarjetaMini, inicioMentidero.firstChild);
+            if (!validarMensajeMentidero(titulo) || !validarMensajeMentidero(texto)) {
+                alert('Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.');
+                return;
             }
 
-            contadorMentidero++;
-            if (mentideroCount) mentideroCount.textContent = contadorMentidero;
-            mentideroForm.reset();
-            document.getElementById('mentideroModal').close();
+            const nuevoMensaje = {
+                categoria,
+                titulo,
+                contenido: texto,
+                fecha_publicacion: new Date().toISOString(),
+                estado_moderacion: 'APROBADO',
+                contador_reportes: 0
+            };
+
+            baseDatos.ref('mentidero').push(nuevoMensaje)
+                .then(() => {
+                    mentideroForm.reset();
+                    document.getElementById('mentideroModal').close();
+                })
+                .catch((error) => {
+                    console.error('Error al guardar en el Mentidero:', error);
+                    alert('Hubo un problema al conectar con la red de El Pinar.');
+                });
         });
     }
 
 
-    // --- 7. MOTOR DE ALERTAS VECINALES ---
+    // --- 6. ALERTAS VECINALES (conectado a Firebase) ---
     const alertaForm = document.getElementById('alertaForm');
     const alertasList = document.getElementById('alertasList');
     const alertasCount = document.getElementById('alertasCount');
-    let contadorAlertas = 0;
+    const alertaZonaSelect = document.getElementById('alertaZona');
+    const alertaNivelSelect = document.getElementById('alertaNivel');
+
+    function crearTarjetaAlerta(alerta) {
+        let colorAlerta = '#d46a55';
+        if (alerta.prioridad === 'alta') colorAlerta = '#e0533c';
+        if (alerta.prioridad === 'informativa') colorAlerta = '#3498db';
+
+        const tarjeta = document.createElement('article');
+        tarjeta.className = 'post-card';
+        tarjeta.setAttribute('data-zona', alerta.zona);
+        tarjeta.setAttribute('data-nivel', alerta.prioridad);
+        tarjeta.style.borderLeft = `4px solid ${colorAlerta}`;
+        tarjeta.innerHTML = `
+            <div class="post-head">
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span class="badge" style="background: ${colorAlerta}22; color: ${colorAlerta};">⚠️ Prioridad ${escapeHTML(alerta.prioridad)}</span>
+                    <span class="badge zona">📍 ${escapeHTML(alerta.zona)}</span>
+                </div>
+                <span style="font-size: 12px; font-weight: 700; color: #e0533c; white-space:nowrap;">⏳ ${escapeHTML(alerta.vigencia)}</span>
+            </div>
+            <h3 class="post-title">${escapeHTML(alerta.titulo)}</h3>
+            <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${escapeHTML(alerta.detalle)}</p>
+            <div class="post-meta"><span>• ${formatearFecha(alerta.fecha_creacion)}</span></div>
+        `;
+        return tarjeta;
+    }
+
+    function ejecutarFiltroAlertas() {
+        const zonaSel = alertaZonaSelect ? alertaZonaSelect.value : 'todas';
+        const nivelSel = alertaNivelSelect ? alertaNivelSelect.value : 'todas';
+        const tarjetas = alertasList ? alertasList.querySelectorAll('.post-card') : [];
+        tarjetas.forEach(tarjeta => {
+            const okZona = (zonaSel === 'todas' || tarjeta.getAttribute('data-zona') === zonaSel);
+            const okNivel = (nivelSel === 'todas' || tarjeta.getAttribute('data-nivel') === nivelSel);
+            tarjeta.style.display = (okZona && okNivel) ? 'flex' : 'none';
+        });
+    }
+
+    function renderAlertas(snapshotVal) {
+        if (!alertasList) return;
+        alertasList.innerHTML = '';
+        const entradas = snapshotVal ? Object.values(snapshotVal).reverse() : [];
+        if (alertasCount) alertasCount.textContent = entradas.length;
+        entradas.forEach(alerta => alertasList.appendChild(crearTarjetaAlerta(alerta)));
+        ejecutarFiltroAlertas();
+    }
+
+    if (alertaZonaSelect) alertaZonaSelect.addEventListener('change', ejecutarFiltroAlertas);
+    if (alertaNivelSelect) alertaNivelSelect.addEventListener('change', ejecutarFiltroAlertas);
+
+    baseDatos.ref('alertas').on('value', (snapshot) => renderAlertas(snapshot.val()));
 
     if (alertaForm) {
         alertaForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const zona = document.getElementById('nuevaAlertaZona').value;
-            const prioridad = document.getElementById('nuevaAlertaNivel').value;
-            const titulo = document.getElementById('nuevaAlertaTitulo').value;
-            const vigencia = document.getElementById('nuevaAlertaVigencia').value;
-            const detalle = document.getElementById('nuevaAlertaDetalle').value;
-
-            let colorAlerta = '#d46a55';
-            if (prioridad === 'alta') colorAlerta = '#e0533c';
-            if (prioridad === 'informativa') colorAlerta = '#3498db';
-
-            const nuevaTarjeta = document.createElement('article');
-            nuevaTarjeta.className = 'post-card';
-            nuevaTarjeta.style.borderLeft = `4px solid ${colorAlerta}`;
-            nuevaTarjeta.innerHTML = `
-                <div class="post-head">
-                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                        <span class="badge" style="background: ${colorAlerta}22; color: ${colorAlerta};">⚠️ Prioridad ${prioridad}</span>
-                        <span class="badge zona">📍 ${zona}</span>
-                    </div>
-                    <span style="font-size: 12px; font-weight: 700; color: #e0533c; white-space:nowrap;">⏳ ${vigencia}</span>
-                </div>
-                <h3 class="post-title">${titulo}</h3>
-                <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${detalle}</p>
-                <div class="post-meta"><span>• Publicado ahora mismo</span></div>
-            `;
-            if (alertasList) alertasList.insertBefore(nuevaTarjeta, alertasList.firstChild);
-            contadorAlertas++;
-            if (alertasCount) alertasCount.textContent = contadorAlertas;
-            alertaForm.reset();
-            document.getElementById('alertaModal').close();
+            const nuevaAlerta = {
+                zona: document.getElementById('nuevaAlertaZona').value,
+                prioridad: document.getElementById('nuevaAlertaNivel').value,
+                titulo: document.getElementById('nuevaAlertaTitulo').value,
+                vigencia: document.getElementById('nuevaAlertaVigencia').value,
+                detalle: document.getElementById('nuevaAlertaDetalle').value,
+                fecha_creacion: new Date().toISOString()
+            };
+            baseDatos.ref('alertas').push(nuevaAlerta)
+                .then(() => {
+                    alertaForm.reset();
+                    document.getElementById('alertaModal').close();
+                })
+                .catch((error) => {
+                    console.error('Error al guardar alerta en Firebase:', error);
+                    alert('No se pudo publicar la alerta. Inténtalo de nuevo.');
+                });
         });
     }
 
 });
-// 1. Lista negra de palabras no permitidas en la comunidad (puedes ampliarla)
-const PALABRAS_PROHIBIDAS = [
-    "insulto1",
-    "insulto2",
-    "ofensa3",
-    "mierda",
-    "tonto",
-    "bobo"
-];
-
-/**
- * Función que revisa si el texto de un vecino cumple las normas
- * @param {string} texto - El mensaje que el vecino intenta publicar
- * @returns {boolean} - true si es válido, false si contiene palabras prohibidas
- */
-function validarMensajeMentidero(texto) {
-    // Convertimos todo a minúsculas para evitar saltarse el filtro usando Mayúsculas
-    const textoMinuscula = texto.toLowerCase();
-
-    // Comprobamos si alguna palabra de la lista negra está en el texto
-    for (let palabra of PALABRAS_PROHIBIDAS) {
-        if (textoMinuscula.includes(palabra)) {
-            return false; // ¡Alerta! Contiene una palabra prohibida
-        }
-    }
-
-    return true; // El mensaje está limpio y es apto para publicar
-}
-
-// 2. Ejemplo de cómo usarlo cuando el vecino pulsa "Enviar"
-function alEnviarMensaje() {
-    // Simulamos que capturamos lo que escribió el vecino en el input del Mentidero
-    const mensajeVecino = "Hola vecinos, este pueblo es una mierda de sitio.";
-
-    if (validarMensajeMentidero(mensajeVecino)) {
-        console.log("✅ Mensaje aprobado. Guardando en la tabla 'mentidero'...");
-        guardarMensajeEnFirebase(mensajeVecino);
-
-        // Aquí iría el código para meterlo en la base de datos
-    } else {
-        console.warn("❌ Publicación bloqueada por el filtro de moderación.");
-        // Mostramos una alerta bonita en la pantalla del vecino
-        alert("Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.");
-    }
-}
-/**
- * 1. Solicita permiso al vecino para enviarle alertas a su pantalla
- */
-function solicitarPermisoNotificaciones() {
-    // Comprobamos si el navegador del vecino soporta notificaciones
-    if (!("Notification" in window)) {
-        console.error("Este navegador no soporta alertas de escritorio.");
-        return;
-    }
-
-    // Si no ha denegado el permiso antes, se lo pedimos ahora
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission().then(function (permiso) {
-            if (permiso === "granted") {
-                console.log("✅ ¡Vecino autorizó las notificaciones!");
-                // Enviamos una alerta de bienvenida
-                enviarNotificacionLocal(
-                    "PinarConnect",
-                    "¡Perfecto! Te avisaremos aquí cuando ocurra una alerta en el municipio."
-                );
-            }
-        });
-    }
-}
-
-/**
- * 2. Lanza la notificación visual en el dispositivo del vecino
- * @param {string} titulo - El encabezado de la alerta (ej: "Tráfico")
- * @param {string} mensaje - El texto detallado del aviso
- */
-function enviarNotificacionLocal(titulo, mensaje) {
-    // Solo la enviamos si el vecino aceptó previamente
-    if (Notification.permission === "granted") {
-        new Notification(titulo, {
-            body: mensaje,
-            icon: "https://unsplash.com" // Icono genérico (puedes cambiarlo por el logo de tu app)
-        });
-    }
-}
-
-/**
- * 3. Simulación: Entrada de una alerta vecinal real
- * Esta función se activará cuando tú, como administrador, lances un aviso urgente
- */
-function simularAlertaAdministrador(zonaAfectada, tipoIncidencia, detalle) {
-    console.log(`⚠️ Procesando alerta para la zona: ${zonaAfectada}`);
-
-    const tituloAlerta = `⚠️ ALERTA: ${tipoIncidencia} (${zonaAfectada})`;
-
-    // Lanzamos la notificación al dispositivo
-    enviarNotificacionLocal(tituloAlerta, detalle);
-}
-
-
-// --- LÍNEAS DE PRUEBA (Para ver cómo funciona) ---
-// Activa esto para pedir el permiso automáticamente cuando se cargue la web:
-// solicitarPermisoNotificaciones();
-
-// Ejemplo de cómo se ejecutaría cuando lances una alerta:
-// simularAlertaAdministrador("La Restinga", "Carretera Cortada", "Desprendimiento de rocas en los accesos. Circule con precaución.");
-// CONEXIÓN DEL FORMULARIO DEL MENTIDERO REAL
-// Esperamos a que la página cargue por completo
-document.addEventListener("DOMContentLoaded", () => {
-    // Buscamos el botón de escribir o el formulario del mentidero
-    // (Ajusta el nombre si tu botón o formulario tiene otro ID o clase)
-    const botonEscribir = document.querySelector(".btn-escribir") || document.querySelector("#form-mentidero");
-
-    if (botonEscribir) {
-        botonEscribir.addEventListener("submit", (evento) => {
-            // Evitamos que la página se recargue sola
-            evento.preventDefault();
-
-            // Aquí capturamos lo que el usuario escribió en el cuadro de texto
-            const cuadroTexto = document.querySelector("#texto-mentidero");
-            if (!cuadroTexto) return;
-
-            const mensajeDelVecino = cuadroTexto.value;
-
-            // Pasamos el mensaje por el filtro que creamos antes
-            if (validarMensajeMentidero(mensajeDelVecino)) {
-                console.log("✅ Mensaje limpio. Publicando...");
-                // Aquí irá el código para mostrarlo en la pantalla
-            } else {
-                // ¡Aquí es donde salta la alerta mágica!
-                alert("⚠️ Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.");
-                cuadroTexto.style.border = "2px solid red"; // Pone el borde rojo como aviso visual
-            }
-        });
-    }
-});
-/**
- * Guarda un mensaje limpio directamente en la nube de Firebase
- * @param {string} mensajeTexto - El texto que escribió el vecino
- */
-function guardarMensajeEnFirebase(mensajeTexto) {
-    // 1. Apuntamos a la colección 'mentidero' en tu nube
-    const refMentidero = baseDatos.ref('mentidero');
-    
-    // 2. Creamos el objeto estructurado con los datos
-    const nuevoMensaje = {
-        usuario_id: 1, // Usuario de prueba
-        contenido: mensajeTexto,
-        fecha_publicacion: new Date().toISOString(),
-        estado_moderacion: 'APROBADO',
-        contador_reportes: 0
-    };
-    
-    // 3. Enviamos los datos a internet de forma permanente
-    refMentidero.push(nuevoMensaje)
-        .then(() => {
-            console.log("¡Éxito! Guardado en Firebase.");
-            alert("✅ ¡Tu pensamiento ha sido publicado en el Mentidero Digital!");
-            
-            // Limpiamos el cuadro de texto de la interfaz
-            const cuadroTexto = document.querySelector("#texto-mentidero");
-            if (cuadroTexto) cuadroTexto.value = "";
-        })
-        .catch((error) => {
-            console.error("Error al guardar en Firebase: ", error);
-            alert("Hubo un problema al conectar con la red de El Pinar.");
-        });
-}
