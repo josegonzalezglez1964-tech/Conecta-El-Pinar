@@ -277,3 +277,46 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+// 1. Lista negra de palabras no permitidas en la comunidad (puedes ampliarla)
+const PALABRAS_PROHIBIDAS = [
+    "insulto1", 
+    "insulto2", 
+    "ofensa3", 
+    "mierda", 
+    "tonto",
+    "bobo"
+];
+
+/**
+ * Función que revisa si el texto de un vecino cumple las normas
+ * @param {string} texto - El mensaje que el vecino intenta publicar
+ * @returns {boolean} - true si es válido, false si contiene palabras prohibidas
+ */
+function validarMensajeMentidero(texto) {
+    // Convertimos todo a minúsculas para evitar saltarse el filtro usando Mayúsculas
+    const textoMinuscula = texto.toLowerCase();
+    
+    // Comprobamos si alguna palabra de la lista negra está en el texto
+    for (let palabra of PALABRAS_PROHIBIDAS) {
+        if (textoMinuscula.includes(palabra)) {
+            return false; // ¡Alerta! Contiene una palabra prohibida
+        }
+    }
+    
+    return true; // El mensaje está limpio y es apto para publicar
+}
+
+// 2. Ejemplo de cómo usarlo cuando el vecino pulsa "Enviar"
+function alEnviarMensaje() {
+    // Simulamos que capturamos lo que escribió el vecino en el input del Mentidero
+    const mensajeVecino = "Hola vecinos, este pueblo es una mierda de sitio."; 
+    
+    if (validarMensajeMentidero(mensajeVecino)) {
+        console.log("✅ Mensaje aprobado. Guardando en la tabla 'mentidero'...");
+        // Aquí iría el código para meterlo en la base de datos
+    } else {
+        console.warn("❌ Publicación bloqueada por el filtro de moderación.");
+        // Mostramos una alerta bonita en la pantalla del vecino
+        alert("Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.");
+    }
+}
