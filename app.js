@@ -279,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 // 1. Lista negra de palabras no permitidas en la comunidad (puedes ampliarla)
 const PALABRAS_PROHIBIDAS = [
-    "insulto1", 
-    "insulto2", 
-    "ofensa3", 
-    "mierda", 
+    "insulto1",
+    "insulto2",
+    "ofensa3",
+    "mierda",
     "tonto",
     "bobo"
 ];
@@ -295,22 +295,22 @@ const PALABRAS_PROHIBIDAS = [
 function validarMensajeMentidero(texto) {
     // Convertimos todo a minúsculas para evitar saltarse el filtro usando Mayúsculas
     const textoMinuscula = texto.toLowerCase();
-    
+
     // Comprobamos si alguna palabra de la lista negra está en el texto
     for (let palabra of PALABRAS_PROHIBIDAS) {
         if (textoMinuscula.includes(palabra)) {
             return false; // ¡Alerta! Contiene una palabra prohibida
         }
     }
-    
+
     return true; // El mensaje está limpio y es apto para publicar
 }
 
 // 2. Ejemplo de cómo usarlo cuando el vecino pulsa "Enviar"
 function alEnviarMensaje() {
     // Simulamos que capturamos lo que escribió el vecino en el input del Mentidero
-    const mensajeVecino = "Hola vecinos, este pueblo es una mierda de sitio."; 
-    
+    const mensajeVecino = "Hola vecinos, este pueblo es una mierda de sitio.";
+
     if (validarMensajeMentidero(mensajeVecino)) {
         console.log("✅ Mensaje aprobado. Guardando en la tabla 'mentidero'...");
         // Aquí iría el código para meterlo en la base de datos
@@ -320,3 +320,63 @@ function alEnviarMensaje() {
         alert("Tu mensaje contiene términos que no cumplen con las normas de convivencia de El Pinar. Por favor, edítalo con respeto.");
     }
 }
+/**
+ * 1. Solicita permiso al vecino para enviarle alertas a su pantalla
+ */
+function solicitarPermisoNotificaciones() {
+    // Comprobamos si el navegador del vecino soporta notificaciones
+    if (!("Notification" in window)) {
+        console.error("Este navegador no soporta alertas de escritorio.");
+        return;
+    }
+
+    // Si no ha denegado el permiso antes, se lo pedimos ahora
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission().then(function (permiso) {
+            if (permiso === "granted") {
+                console.log("✅ ¡Vecino autorizó las notificaciones!");
+                // Enviamos una alerta de bienvenida
+                enviarNotificacionLocal(
+                    "PinarConnect",
+                    "¡Perfecto! Te avisaremos aquí cuando ocurra una alerta en el municipio."
+                );
+            }
+        });
+    }
+}
+
+/**
+ * 2. Lanza la notificación visual en el dispositivo del vecino
+ * @param {string} titulo - El encabezado de la alerta (ej: "Tráfico")
+ * @param {string} mensaje - El texto detallado del aviso
+ */
+function enviarNotificacionLocal(titulo, mensaje) {
+    // Solo la enviamos si el vecino aceptó previamente
+    if (Notification.permission === "granted") {
+        new Notification(titulo, {
+            body: mensaje,
+            icon: "https://unsplash.com" // Icono genérico (puedes cambiarlo por el logo de tu app)
+        });
+    }
+}
+
+/**
+ * 3. Simulación: Entrada de una alerta vecinal real
+ * Esta función se activará cuando tú, como administrador, lances un aviso urgente
+ */
+function simularAlertaAdministrador(zonaAfectada, tipoIncidencia, detalle) {
+    console.log(`⚠️ Procesando alerta para la zona: ${zonaAfectada}`);
+
+    const tituloAlerta = `⚠️ ALERTA: ${tipoIncidencia} (${zonaAfectada})`;
+
+    // Lanzamos la notificación al dispositivo
+    enviarNotificacionLocal(tituloAlerta, detalle);
+}
+
+
+// --- LÍNEAS DE PRUEBA (Para ver cómo funciona) ---
+// Activa esto para pedir el permiso automáticamente cuando se cargue la web:
+// solicitarPermisoNotificaciones();
+
+// Ejemplo de cómo se ejecutaría cuando lances una alerta:
+// simularAlertaAdministrador("La Restinga", "Carretera Cortada", "Desprendimiento de rocas en los accesos. Circule con precaución.");
