@@ -4,11 +4,7 @@
 const firebaseConfig = {
     apiKey: "AIzaSyCqvz3vJOnFsYbxsONUl48YaxGC7raRSg",
     authDomain: "pinarconnect.firebaseapp.com",
-    // ⚠️ REEMPLAZA ESTA LÍNEA por tu databaseURL real.
-    // La encuentras en: Consola de Firebase > Realtime Database > arriba del todo
-    // (algo como "https://pinarconnect-default-rtdb.europe-west1.firebasedatabase.app"
-    // o "https://pinarconnect-default-rtdb.firebaseio.com" según la región que elegiste).
-    databaseURL: "https://pinarconnect-default-rtdb.firebaseio.com", // <-- REEMPLAZA ESTO
+    databaseURL: "https://pinarconnect-default-rtdb.firebaseio.com",
     projectId: "pinarconnect",
     storageBucket: "pinarconnect.firebasestorage.app",
     messagingSenderId: "1071169307553",
@@ -18,6 +14,33 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 const baseDatos = firebase.database();
+const auth = firebase.auth();
+
+// ==========================================================================
+// ACCESO VECINAL — Enlace de correo (passwordless)
+// ==========================================================================
+
+// Si el usuario llega a la web haciendo clic en el enlace que le enviamos por correo,
+// completamos aquí el inicio de sesión.
+if (auth.isSignInWithEmailLink(window.location.href)) {
+    let emailGuardado = window.localStorage.getItem('pinarconnect_email');
+    if (!emailGuardado) {
+        // Si abrió el enlace en otro dispositivo/navegador, se lo pedimos de nuevo.
+        emailGuardado = window.prompt('Confirma tu correo electrónico para completar el acceso:');
+    }
+    if (emailGuardado) {
+        auth.signInWithEmailLink(emailGuardado, window.location.href)
+            .then(() => {
+                window.localStorage.removeItem('pinarconnect_email');
+                // Limpiamos la URL para que no se quede el enlace de un solo uso visible
+                window.history.replaceState({}, document.title, window.location.pathname);
+            })
+            .catch((error) => {
+                console.error('Error al completar el acceso:', error);
+                alert('El enlace no es válido o ha caducado. Pide uno nuevo desde "Iniciar sesión".');
+            });
+    }
+}
 
 // Evita que el texto escrito por un vecino pueda romper el HTML de la página
 function escapeHTML(texto) {
@@ -101,10 +124,66 @@ document.addEventListener('DOMContentLoaded', () => {
     inlineBtns.forEach(btn => btn.addEventListener('click', () => switchView(btn.getAttribute('data-switch-view'))));
 
 
-    // --- 2. CONTROL DE MODALES ---
+    // --- 2. ACCESO VECINAL (LOGIN POR ENLACE DE CORREO) ---
+    const authLoggedOut = document.getElementById('authLoggedOut');
+    const authLoggedIn = document.getElementById('authLoggedIn');
+    const authEmailDisplay = document.getElementById('authEmailDisplay');
+    const btnAbrirLogin = document.getElementById('btnAbrirLogin');
+    const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+    const loginForm = document.getElementById('loginForm');
+    const loginModal = document.getElementById('loginModal');
+
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            if (authLoggedOut) authLoggedOut.style.display = 'none';
+            if (authLoggedIn) authLoggedIn.style.display = 'block';
+            if (authEmailDisplay) authEmailDisplay.textContent = user.email;
+        } else {
+            if (authLoggedOut) authLoggedOut.style.display = 'block';
+            if (authLoggedIn) authLoggedIn.style.display = 'none';
+        }
+    });
+
+    if (btnAbrirLogin) btnAbrirLogin.addEventListener('click', () => loginModal.showModal());
+    if (btnCerrarSesion) btnCerrarSesion.addEventListener('click', () => auth.signOut());
+
+    if (loginForm) {
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const actionCodeSettings = {
+                url: window.location.origin + window.location.pathname,
+                handleCodeInApp: true
+            };
+            auth.sendSignInLinkToEmail(email, actionCodeSettings)
+                .then(() => {
+                    window.localStorage.setItem('pinarconnect_email', email);
+                    loginForm.reset();
+                    loginModal.close();
+                    alert(`✅ Te hemos enviado un enlace a ${email}. Ábrelo desde este mismo dispositivo para entrar.`);
+                })
+                .catch((error) => {
+                    console.error('Error al enviar el enlace de acceso:', error);
+                    alert('No se pudo enviar el enlace. Comprueba el correo e inténtalo de nuevo.');
+                });
+        });
+    }
+
+    // Abre el modal de login en vez del modal de publicar si el vecino no ha iniciado sesión
+    function requiereSesion() {
+        if (!auth.currentUser) {
+            if (loginModal) loginModal.showModal();
+            return true;
+        }
+        return false;
+    }
+
+
+    // --- 3. CONTROL DE MODALES ---
     document.querySelectorAll('[data-open-modal]').forEach(button => {
         button.addEventListener('click', () => {
             const modalType = button.getAttribute('data-open-modal');
+            if (['favor', 'mentidero', 'alerta'].includes(modalType) && requiereSesion()) return;
             const targetModal = document.getElementById(`${modalType}Modal`);
             if (targetModal) targetModal.showModal();
         });
@@ -123,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- 3. MERCADILLO DE FAVORES (conectado a Firebase) ---
+    // --- 4. MERCADILLO DE FAVORES (conectado a Firebase) ---
     const favorForm = document.getElementById('favorForm');
     const favoresList = document.getElementById('favoresList');
     const inicioFavores = document.getElementById('inicioFavores');
@@ -195,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (favorForm) {
         favorForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (requiereSesion()) { document.getElementById('favorModal').close(); return; }
             const nuevoFavor = {
                 tipo: document.getElementById('nuevoFavorTipo').value,
                 titulo: document.getElementById('nuevoFavorTitulo').value,
@@ -202,7 +282,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 tags: document.getElementById('nuevoFavorTags').value,
                 detalle: document.getElementById('nuevoFavorDetalle').value,
                 fecha_creacion: new Date().toISOString(),
-                estado: 'ACTIVO'
+                estado: 'ACTIVO',
+                usuario_email: auth.currentUser.email
             };
             baseDatos.ref('favores').push(nuevoFavor)
                 .then(() => {
@@ -217,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 4. MI PERFIL (local, no requiere base de datos) ---
+    // --- 5. MI PERFIL (local, no requiere base de datos) ---
     const profileForm = document.getElementById('profileForm');
     const profileName = document.getElementById('profileName');
     const profileZone = document.getElementById('profileZone');
@@ -248,7 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 5. EL MENTIDERO DIGITAL (conectado a Firebase + moderación) ---
+    // --- 6. EL MENTIDERO DIGITAL (conectado a Firebase + moderación) ---
     const mentideroForm = document.getElementById('mentideroForm');
     const mentideroList = document.getElementById('mentideroList');
     const inicioMentidero = document.getElementById('inicioMentidero');
@@ -266,7 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <h3 class="post-title" style="font-style: italic;">"${escapeHTML(msg.titulo)}"</h3>
             <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${escapeHTML(msg.contenido)}</p>
-            <div class="post-meta"><span>✍️ Vecino/a de El Pinar • ${formatearFecha(msg.fecha_publicacion)}</span></div>
+            <div class="post-meta"><span>✍️ ${escapeHTML(msg.usuario_email ? msg.usuario_email.split('@')[0] : 'Vecino/a de El Pinar')} • ${formatearFecha(msg.fecha_publicacion)}</span></div>
         `;
         return tarjeta;
     }
@@ -310,6 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mentideroForm) {
         mentideroForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (requiereSesion()) { document.getElementById('mentideroModal').close(); return; }
+
             const categoria = document.getElementById('nuevoMentideroTipo').value;
             const titulo = document.getElementById('nuevoMentideroTitulo').value;
             const texto = document.getElementById('nuevoMentideroTexto').value;
@@ -325,7 +408,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 contenido: texto,
                 fecha_publicacion: new Date().toISOString(),
                 estado_moderacion: 'APROBADO',
-                contador_reportes: 0
+                contador_reportes: 0,
+                usuario_email: auth.currentUser.email
             };
 
             baseDatos.ref('mentidero').push(nuevoMensaje)
@@ -341,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- 6. ALERTAS VECINALES (conectado a Firebase) ---
+    // --- 7. ALERTAS VECINALES (conectado a Firebase) ---
     const alertaForm = document.getElementById('alertaForm');
     const alertasList = document.getElementById('alertasList');
     const alertasCount = document.getElementById('alertasCount');
@@ -401,13 +485,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (alertaForm) {
         alertaForm.addEventListener('submit', (e) => {
             e.preventDefault();
+            if (requiereSesion()) { document.getElementById('alertaModal').close(); return; }
             const nuevaAlerta = {
                 zona: document.getElementById('nuevaAlertaZona').value,
                 prioridad: document.getElementById('nuevaAlertaNivel').value,
                 titulo: document.getElementById('nuevaAlertaTitulo').value,
                 vigencia: document.getElementById('nuevaAlertaVigencia').value,
                 detalle: document.getElementById('nuevaAlertaDetalle').value,
-                fecha_creacion: new Date().toISOString()
+                fecha_creacion: new Date().toISOString(),
+                usuario_email: auth.currentUser.email
             };
             baseDatos.ref('alertas').push(nuevaAlerta)
                 .then(() => {

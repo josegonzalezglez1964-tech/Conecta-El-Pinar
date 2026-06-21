@@ -9,6 +9,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>PinarConnect · Comunidad y Solidaridad Herreña</title>
     <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="favicon.ico" sizes="any" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -38,6 +40,19 @@
           <button class="nav-tab" data-view="alertas">Alertas</button>
           <button class="nav-tab" data-view="perfil">Mi perfil</button>
         </nav>
+
+        <section class="status-card glass" id="authCard">
+          <h2>Acceso vecinal</h2>
+          <div id="authLoggedOut">
+            <p class="muted" style="font-size:13px; margin-bottom:10px;">Inicia sesión con tu correo para poder publicar.</p>
+            <button class="primary-btn" id="btnAbrirLogin" style="width:100%;">Iniciar sesión</button>
+          </div>
+          <div id="authLoggedIn" style="display:none;">
+            <p class="muted" style="font-size:13px; margin-bottom:2px;">Conectado/a como:</p>
+            <p style="font-weight:600; font-size:14px; word-break:break-all;" id="authEmailDisplay"></p>
+            <button class="secondary-btn" id="btnCerrarSesion" style="width:100%; margin-top:10px;">Cerrar sesión</button>
+          </div>
+        </section>
 
         <section class="status-card glass">
           <h2>Resumen del día</h2>
@@ -372,9 +387,33 @@
         </menu>
       </form>
     </dialog>
+<!-- ===================== MODAL: LOGIN ===================== -->
+    <dialog id="loginModal" class="modal">
+      <form class="modal-card" id="loginForm">
+        <div class="modal-head">
+          <h3>Iniciar sesión</h3>
+          <button type="button" class="icon-btn" aria-label="Cerrar" onclick="document.getElementById('loginModal').close()">✕</button>
+        </div>
+        <div class="form-grid">
+          <label class="full-width">
+            Tu correo electrónico
+            <input id="loginEmail" type="email" required placeholder="tucorreo@ejemplo.com" />
+          </label>
+          <p class="muted full-width" style="font-size:13px; margin:0;">
+            Te enviaremos un enlace de acceso. Ábrelo desde este mismo dispositivo para entrar sin contraseña.
+          </p>
+        </div>
+        <menu>
+          <button type="button" class="secondary-btn" onclick="document.getElementById('loginModal').close()">Cancelar</button>
+          <button type="submit" class="primary-btn">Enviar enlace</button>
+        </menu>
+      </form>
+    </dialog>
+
 <!-- Importamos las librerías oficiales de Firebase desde la nube -->
 <script src="https://unpkg.com/firebase@10.8.0/firebase-app-compat.js"></script>
 <script src="https://unpkg.com/firebase@10.8.0/firebase-database-compat.js"></script>
+<script src="https://unpkg.com/firebase@10.8.0/firebase-auth-compat.js"></script>
 
     <script src="app.js" defer></script>
   </body>
