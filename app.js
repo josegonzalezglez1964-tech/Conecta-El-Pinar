@@ -2,7 +2,7 @@
 // PINARCONNECT - CONFIGURACIÓN E INICIALIZACIÓN DE FIREBASE
 // ==========================================================================
 const firebaseConfig = {
-    apiKey: "AIzaSyCqvz3vJOnFsYbxsONUl48YaxGC7raRSg",
+    apiKey: "AIzaSyCQvz3vJOnFsYbXsONUll48YaxGC7raRSg",
     authDomain: "pinarconnect.firebaseapp.com",
     databaseURL: "https://pinarconnect-default-rtdb.firebaseio.com",
     projectId: "pinarconnect",
