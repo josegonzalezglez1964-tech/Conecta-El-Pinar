@@ -16,6 +16,12 @@ firebase.initializeApp(firebaseConfig);
 const baseDatos = firebase.database();
 const auth = firebase.auth();
 
+// Email del administrador — puede borrar/editar cualquier publicación
+const ADMIN_EMAIL = 'josegonzalezglez1964@gmail.com';
+
+// Usuario conectado en este momento (se actualiza con onAuthStateChanged)
+let usuarioActual = null;
+
 // ==========================================================================
 // ACCESO VECINAL — Enlace de correo (passwordless)
 // ==========================================================================
@@ -134,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginModal = document.getElementById('loginModal');
 
     auth.onAuthStateChanged((user) => {
+        usuarioActual = user;
         if (user) {
             if (authLoggedOut) authLoggedOut.style.display = 'none';
             if (authLoggedIn) authLoggedIn.style.display = 'block';
@@ -142,6 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (authLoggedOut) authLoggedOut.style.display = 'block';
             if (authLoggedIn) authLoggedIn.style.display = 'none';
         }
+        // Refresca las tarjetas para mostrar/ocultar botones de editar/borrar
+        baseDatos.ref('favores').once('value', s => renderFavores(s.val()));
+        baseDatos.ref('mentidero').once('value', s => renderMentidero(s.val()));
+        baseDatos.ref('alertas').once('value', s => renderAlertas(s.val()));
     });
 
     if (btnAbrirLogin) btnAbrirLogin.addEventListener('click', () => loginModal.showModal());
@@ -210,11 +221,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const favorTipoSelect = document.getElementById('favorTipo');
     const favorBusquedaInput = document.getElementById('favorBusqueda');
 
-    function crearTarjetaFavor(favor) {
+    function puedeGestionar(emailAutor) {
+        if (!usuarioActual) return false;
+        return usuarioActual.email === emailAutor || usuarioActual.email === ADMIN_EMAIL;
+    }
+
+    function botonesGestion(seccion, key, emailAutor) {
+        if (!puedeGestionar(emailAutor)) return '';
+        const esAdmin = usuarioActual && usuarioActual.email === ADMIN_EMAIL && usuarioActual.email !== emailAutor;
+        const etiqueta = esAdmin ? '🛡️ Admin' : '';
+        return `
+            <div class="gestion-btns" style="display:flex; gap:6px; margin-top:8px;">
+                ${seccion !== 'alertas' ? `<button class="btn-editar secondary-btn" data-key="${key}" data-seccion="${seccion}" style="font-size:12px; padding:4px 10px;">✏️ Editar</button>` : ''}
+                <button class="btn-borrar secondary-btn" data-key="${key}" data-seccion="${seccion}" style="font-size:12px; padding:4px 10px; color:#e0533c; border-color:#e0533c;">${esAdmin ? etiqueta + ' ' : ''}🗑️ Borrar</button>
+            </div>`;
+    }
+
+    function crearTarjetaFavor(favor, key) {
         const tarjeta = document.createElement('article');
         tarjeta.className = 'post-card';
         tarjeta.setAttribute('data-tipo', favor.tipo);
         tarjeta.setAttribute('data-buscar', `${favor.titulo} ${favor.detalle} ${favor.zona}`.toLowerCase());
+        tarjeta.setAttribute('data-key', key);
         tarjeta.innerHTML = `
             <div class="post-head">
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -228,6 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <span>🏷️ ${escapeHTML(favor.tags || 'comunidad')}</span>
                 <span>• ${formatearFecha(favor.fecha_creacion)}</span>
             </div>
+            ${botonesGestion('favores', key, favor.usuario_email)}
         `;
         return tarjeta;
     }
@@ -237,11 +266,13 @@ document.addEventListener('DOMContentLoaded', () => {
         favoresList.innerHTML = '';
         if (inicioFavores) inicioFavores.innerHTML = '';
 
-        const entradas = snapshotVal ? Object.values(snapshotVal).reverse() : [];
+        const entradas = snapshotVal
+            ? Object.entries(snapshotVal).map(([key, val]) => ({ ...val, _key: key })).reverse()
+            : [];
         if (favoresCount) favoresCount.textContent = entradas.length;
 
         entradas.forEach(favor => {
-            favoresList.appendChild(crearTarjetaFavor(favor));
+            favoresList.appendChild(crearTarjetaFavor(favor, favor._key));
             if (inicioFavores && inicioFavores.children.length < 5) {
                 const mini = document.createElement('div');
                 mini.style.padding = '12px';
@@ -275,25 +306,57 @@ document.addEventListener('DOMContentLoaded', () => {
         favorForm.addEventListener('submit', (e) => {
             e.preventDefault();
             if (requiereSesion()) { document.getElementById('favorModal').close(); return; }
-            const nuevoFavor = {
+            const editKey = document.getElementById('favorModal').getAttribute('data-edit-key');
+            const datos = {
                 tipo: document.getElementById('nuevoFavorTipo').value,
                 titulo: document.getElementById('nuevoFavorTitulo').value,
                 zona: document.getElementById('nuevoFavorZona').value,
                 tags: document.getElementById('nuevoFavorTags').value,
                 detalle: document.getElementById('nuevoFavorDetalle').value,
-                fecha_creacion: new Date().toISOString(),
-                estado: 'ACTIVO',
                 usuario_email: auth.currentUser.email
             };
-            baseDatos.ref('favores').push(nuevoFavor)
-                .then(() => {
-                    favorForm.reset();
-                    document.getElementById('favorModal').close();
-                })
-                .catch((error) => {
-                    console.error('Error al guardar favor en Firebase:', error);
-                    alert('No se pudo publicar el favor. Revisa tu conexión e inténtalo de nuevo.');
+            const operacion = editKey
+                ? baseDatos.ref('favores/' + editKey).update(datos)
+                : baseDatos.ref('favores').push({ ...datos, fecha_creacion: new Date().toISOString(), estado: 'ACTIVO' });
+
+            operacion.then(() => {
+                favorForm.reset();
+                document.getElementById('favorModal').removeAttribute('data-edit-key');
+                document.querySelector('#favorModal h3').textContent = 'Publicar favor';
+                document.getElementById('favorModal').close();
+            }).catch(err => {
+                console.error('Error al guardar favor:', err);
+                alert('No se pudo guardar el favor. Inténtalo de nuevo.');
+            });
+        });
+    }
+
+    if (favoresList) {
+        favoresList.addEventListener('click', (e) => {
+            const btnBorrar = e.target.closest('.btn-borrar[data-seccion="favores"]');
+            const btnEditar = e.target.closest('.btn-editar[data-seccion="favores"]');
+
+            if (btnBorrar) {
+                if (!confirm('¿Seguro que quieres borrar este favor?')) return;
+                baseDatos.ref('favores/' + btnBorrar.getAttribute('data-key')).remove()
+                    .catch(err => alert('Error al borrar: ' + err.message));
+            }
+
+            if (btnEditar) {
+                const key = btnEditar.getAttribute('data-key');
+                baseDatos.ref('favores/' + key).once('value', snap => {
+                    const f = snap.val();
+                    document.getElementById('nuevoFavorTipo').value = f.tipo || '';
+                    document.getElementById('nuevoFavorTitulo').value = f.titulo || '';
+                    document.getElementById('nuevoFavorZona').value = f.zona || '';
+                    document.getElementById('nuevoFavorTags').value = f.tags || '';
+                    document.getElementById('nuevoFavorDetalle').value = f.detalle || '';
+                    const modal = document.getElementById('favorModal');
+                    modal.setAttribute('data-edit-key', key);
+                    modal.querySelector('h3').textContent = '✏️ Editar favor';
+                    modal.showModal();
                 });
+            }
         });
     }
 
@@ -336,10 +399,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const mentideroCount = document.getElementById('mentideroCount');
     const mentideroFiltro = document.getElementById('mentideroFiltro');
 
-    function crearTarjetaMentidero(msg) {
+    function crearTarjetaMentidero(msg, key) {
         const tarjeta = document.createElement('article');
         tarjeta.className = 'post-card';
         tarjeta.setAttribute('data-categoria', msg.categoria || 'mensaje');
+        tarjeta.setAttribute('data-key', key);
         tarjeta.style.borderLeft = '4px solid var(--pinar-accent)';
         tarjeta.innerHTML = `
             <div class="post-head">
@@ -348,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="post-title" style="font-style: italic;">"${escapeHTML(msg.titulo)}"</h3>
             <p style="margin: 0; color: var(--text-main); font-size: 15px; line-height: 1.6; white-space: pre-line;">${escapeHTML(msg.contenido)}</p>
             <div class="post-meta"><span>✍️ ${escapeHTML(msg.usuario_email ? msg.usuario_email.split('@')[0] : 'Vecino/a de El Pinar')} • ${formatearFecha(msg.fecha_publicacion)}</span></div>
+            ${botonesGestion('mentidero', key, msg.usuario_email)}
         `;
         return tarjeta;
     }
@@ -367,12 +432,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (inicioMentidero) inicioMentidero.innerHTML = '';
 
         const entradas = snapshotVal
-            ? Object.values(snapshotVal).filter(msg => msg.estado_moderacion !== 'BLOQUEADO').reverse()
+            ? Object.entries(snapshotVal)
+                .map(([key, val]) => ({ ...val, _key: key }))
+                .filter(msg => msg.estado_moderacion !== 'BLOQUEADO')
+                .reverse()
             : [];
         if (mentideroCount) mentideroCount.textContent = entradas.length;
 
         entradas.forEach(msg => {
-            mentideroList.appendChild(crearTarjetaMentidero(msg));
+            mentideroList.appendChild(crearTarjetaMentidero(msg, msg._key));
             if (inicioMentidero && inicioMentidero.children.length < 5) {
                 const mini = document.createElement('div');
                 mini.style.padding = '12px';
@@ -393,6 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             if (requiereSesion()) { document.getElementById('mentideroModal').close(); return; }
 
+            const editKey = document.getElementById('mentideroModal').getAttribute('data-edit-key');
             const categoria = document.getElementById('nuevoMentideroTipo').value;
             const titulo = document.getElementById('nuevoMentideroTitulo').value;
             const texto = document.getElementById('nuevoMentideroTexto').value;
@@ -402,25 +471,47 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const nuevoMensaje = {
-                categoria,
-                titulo,
-                contenido: texto,
-                fecha_publicacion: new Date().toISOString(),
-                estado_moderacion: 'APROBADO',
-                contador_reportes: 0,
-                usuario_email: auth.currentUser.email
-            };
+            const datos = { categoria, titulo, contenido: texto, usuario_email: auth.currentUser.email };
+            const operacion = editKey
+                ? baseDatos.ref('mentidero/' + editKey).update(datos)
+                : baseDatos.ref('mentidero').push({ ...datos, fecha_publicacion: new Date().toISOString(), estado_moderacion: 'APROBADO', contador_reportes: 0 });
 
-            baseDatos.ref('mentidero').push(nuevoMensaje)
-                .then(() => {
-                    mentideroForm.reset();
-                    document.getElementById('mentideroModal').close();
-                })
-                .catch((error) => {
-                    console.error('Error al guardar en el Mentidero:', error);
-                    alert('Hubo un problema al conectar con la red de El Pinar.');
+            operacion.then(() => {
+                mentideroForm.reset();
+                document.getElementById('mentideroModal').removeAttribute('data-edit-key');
+                document.querySelector('#mentideroModal h3').textContent = 'Compartir mensaje';
+                document.getElementById('mentideroModal').close();
+            }).catch(err => {
+                console.error('Error al guardar en el Mentidero:', err);
+                alert('Hubo un problema al conectar con la red de El Pinar.');
+            });
+        });
+    }
+
+    if (mentideroList) {
+        mentideroList.addEventListener('click', (e) => {
+            const btnBorrar = e.target.closest('.btn-borrar[data-seccion="mentidero"]');
+            const btnEditar = e.target.closest('.btn-editar[data-seccion="mentidero"]');
+
+            if (btnBorrar) {
+                if (!confirm('¿Seguro que quieres borrar este mensaje del Mentidero?')) return;
+                baseDatos.ref('mentidero/' + btnBorrar.getAttribute('data-key')).remove()
+                    .catch(err => alert('Error al borrar: ' + err.message));
+            }
+
+            if (btnEditar) {
+                const key = btnEditar.getAttribute('data-key');
+                baseDatos.ref('mentidero/' + key).once('value', snap => {
+                    const m = snap.val();
+                    document.getElementById('nuevoMentideroTipo').value = m.categoria || '';
+                    document.getElementById('nuevoMentideroTitulo').value = m.titulo || '';
+                    document.getElementById('nuevoMentideroTexto').value = m.contenido || '';
+                    const modal = document.getElementById('mentideroModal');
+                    modal.setAttribute('data-edit-key', key);
+                    modal.querySelector('h3').textContent = '✏️ Editar mensaje';
+                    modal.showModal();
                 });
+            }
         });
     }
 
@@ -432,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const alertaZonaSelect = document.getElementById('alertaZona');
     const alertaNivelSelect = document.getElementById('alertaNivel');
 
-    function crearTarjetaAlerta(alerta) {
+    function crearTarjetaAlerta(alerta, key) {
         let colorAlerta = '#d46a55';
         if (alerta.prioridad === 'alta') colorAlerta = '#e0533c';
         if (alerta.prioridad === 'informativa') colorAlerta = '#3498db';
@@ -441,6 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tarjeta.className = 'post-card';
         tarjeta.setAttribute('data-zona', alerta.zona);
         tarjeta.setAttribute('data-nivel', alerta.prioridad);
+        tarjeta.setAttribute('data-key', key);
         tarjeta.style.borderLeft = `4px solid ${colorAlerta}`;
         tarjeta.innerHTML = `
             <div class="post-head">
@@ -453,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <h3 class="post-title">${escapeHTML(alerta.titulo)}</h3>
             <p style="margin: 0; color: var(--text-main); font-size: 14px; line-height: 1.5;">${escapeHTML(alerta.detalle)}</p>
             <div class="post-meta"><span>• ${formatearFecha(alerta.fecha_creacion)}</span></div>
+            ${botonesGestion('alertas', key, alerta.usuario_email)}
         `;
         return tarjeta;
     }
@@ -471,9 +564,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderAlertas(snapshotVal) {
         if (!alertasList) return;
         alertasList.innerHTML = '';
-        const entradas = snapshotVal ? Object.values(snapshotVal).reverse() : [];
+        const entradas = snapshotVal
+            ? Object.entries(snapshotVal).map(([key, val]) => ({ ...val, _key: key })).reverse()
+            : [];
         if (alertasCount) alertasCount.textContent = entradas.length;
-        entradas.forEach(alerta => alertasList.appendChild(crearTarjetaAlerta(alerta)));
+        entradas.forEach(alerta => alertasList.appendChild(crearTarjetaAlerta(alerta, alerta._key)));
         ejecutarFiltroAlertas();
     }
 
@@ -504,6 +599,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('Error al guardar alerta en Firebase:', error);
                     alert('No se pudo publicar la alerta. Inténtalo de nuevo.');
                 });
+        });
+    }
+
+    if (alertasList) {
+        alertasList.addEventListener('click', (e) => {
+            const btnBorrar = e.target.closest('.btn-borrar[data-seccion="alertas"]');
+            if (btnBorrar) {
+                if (!confirm('¿Seguro que quieres borrar esta alerta?')) return;
+                baseDatos.ref('alertas/' + btnBorrar.getAttribute('data-key')).remove()
+                    .catch(err => alert('Error al borrar: ' + err.message));
+            }
         });
     }
 
