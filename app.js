@@ -76,24 +76,47 @@ function validarMensajeMentidero(texto) {
 // ==========================================================================
 // NOTIFICACIONES LOCALES (opcional, no se activan automáticamente)
 // ==========================================================================
-function solicitarPermisoNotificaciones() {
+// Marca de tiempo al cargar la página — solo notificamos alertas posteriores a este momento
+const TIMESTAMP_CARGA = Date.now();
+
+function solicitarPermisoNotificaciones(callbackExito) {
     if (!("Notification" in window)) {
-        console.error("Este navegador no soporta alertas de escritorio.");
+        alert('Tu navegador no soporta notificaciones de escritorio. Prueba con Chrome o Firefox.');
         return;
     }
-    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-        Notification.requestPermission().then((permiso) => {
-            if (permiso === "granted") {
-                enviarNotificacionLocal("PinarConnect", "¡Perfecto! Te avisaremos aquí cuando ocurra una alerta en el municipio.");
-            }
-        });
+    if (Notification.permission === 'granted') {
+        if (callbackExito) callbackExito();
+        return;
     }
+    if (Notification.permission === 'denied') {
+        alert('Tienes las notificaciones bloqueadas para esta web. Para activarlas, haz clic en el candado 🔒 de la barra de direcciones y permite las notificaciones.');
+        return;
+    }
+    Notification.requestPermission().then((permiso) => {
+        if (permiso === 'granted') {
+            enviarNotificacionLocal(
+                '🔔 PinarConnect activado',
+                'Te avisaremos cuando haya alertas nuevas en El Pinar.'
+            );
+            if (callbackExito) callbackExito();
+        }
+    });
 }
 
-function enviarNotificacionLocal(titulo, mensaje) {
-    if (Notification.permission === "granted") {
-        new Notification(titulo, { body: mensaje });
-    }
+function enviarNotificacionLocal(titulo, cuerpo) {
+    if (Notification.permission !== 'granted') return;
+    const notif = new Notification(titulo, {
+        body: cuerpo,
+        icon: 'icon-192.png',
+        badge: 'icon-192.png',
+        tag: 'pinarconnect-alerta'
+    });
+    notif.onclick = () => {
+        window.focus();
+        const btnAlertas = document.querySelector('.nav-tab[data-view="alertas"]');
+        if (btnAlertas) btnAlertas.click();
+        notif.close();
+    };
 }
 
 // ==========================================================================
@@ -157,6 +180,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnAbrirLogin) btnAbrirLogin.addEventListener('click', () => loginModal.showModal());
     if (btnCerrarSesion) btnCerrarSesion.addEventListener('click', () => auth.signOut());
+
+    // Botón de activar notificaciones
+    const btnActivarNotifs = document.getElementById('btnActivarNotifs');
+
+    function actualizarBtnNotifs() {
+        if (!btnActivarNotifs) return;
+        if (!("Notification" in window)) { btnActivarNotifs.style.display = 'none'; return; }
+        if (Notification.permission === 'granted') {
+            btnActivarNotifs.textContent = '🔔 Alertas activadas';
+            btnActivarNotifs.disabled = true;
+            btnActivarNotifs.style.opacity = '0.6';
+        } else if (Notification.permission === 'denied') {
+            btnActivarNotifs.textContent = '🔕 Alertas bloqueadas';
+            btnActivarNotifs.disabled = false;
+            btnActivarNotifs.style.opacity = '1';
+        } else {
+            btnActivarNotifs.textContent = '🔔 Activar alertas';
+            btnActivarNotifs.disabled = false;
+            btnActivarNotifs.style.opacity = '1';
+        }
+    }
+
+    if (btnActivarNotifs) {
+        btnActivarNotifs.addEventListener('click', () => {
+            solicitarPermisoNotificaciones(actualizarBtnNotifs);
+        });
+    }
+    actualizarBtnNotifs();
 
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -576,6 +627,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (alertaNivelSelect) alertaNivelSelect.addEventListener('change', ejecutarFiltroAlertas);
 
     baseDatos.ref('alertas').on('value', (snapshot) => renderAlertas(snapshot.val()));
+
+    // Listener de alertas NUEVAS — solo notifica las publicadas después de abrir la web
+    baseDatos.ref('alertas').on('child_added', (snapshot) => {
+        const alerta = snapshot.val();
+        if (!alerta || !alerta.fecha_creacion) return;
+        const fechaAlerta = new Date(alerta.fecha_creacion).getTime();
+        if (fechaAlerta <= TIMESTAMP_CARGA) return; // Ignorar las ya existentes
+        if (Notification.permission !== 'granted') return;
+        const icono = alerta.prioridad === 'alta' ? '🚨' : alerta.prioridad === 'informativa' ? 'ℹ️' : '⚠️';
+        enviarNotificacionLocal(
+            `${icono} Alerta en ${alerta.zona || 'El Pinar'}`,
+            `${alerta.titulo}\n⏳ ${alerta.vigencia || ''}`
+        );
+    });
 
     if (alertaForm) {
         alertaForm.addEventListener('submit', (e) => {
