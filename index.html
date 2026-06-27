@@ -417,5 +417,15 @@
 <script src="https://unpkg.com/firebase@10.8.0/firebase-auth-compat.js"></script>
 
     <script src="app.js" defer></script>
-  </body>
+  <!-- Registro del Service Worker (PWA instalable) -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then(() => console.log('✅ PinarConnect PWA lista'))
+            .catch(err => console.warn('SW no registrado:', err));
+        });
+      }
+    </script>
+</body>
 </html>
